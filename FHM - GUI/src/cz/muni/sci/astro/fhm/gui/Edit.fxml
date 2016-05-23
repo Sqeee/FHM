@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.sci.astro.fhm.gui.EditController">
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+   <children>
+      <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="17.0" spacing="5.0" VBox.vgrow="NEVER">
+         <children>
+            <Label text="Mode:">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Label>
+            <RadioButton fx:id="toggleModeFiles" focusTraversable="false" mnemonicParsing="false" onAction="#handleClickToggleModeFiles" selected="true" text="Keywords in file">
+               <toggleGroup>
+                  <ToggleGroup fx:id="toggleGroupMode" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="toggleModeKeywords" focusTraversable="false" mnemonicParsing="false" onAction="#handleClickToggleModeFiles" text="Keywords across files" toggleGroup="$toggleGroupMode" />
+         </children>
+      </HBox>
+      <Label text="Keywords with values:" VBox.vgrow="NEVER">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+      <TabPane fx:id="tabPaneDatas" tabClosingPolicy="ALL_TABS" VBox.vgrow="ALWAYS" />
+      <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="25.0" prefWidth="200.0" spacing="5.0">
+         <Button fx:id="buttonAddNew" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonNewCard" text="Add new Card" HBox.hgrow="ALWAYS" />
+         <Button fx:id="buttonDeleteCard" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonDeleteCard" text="Delete Card" HBox.hgrow="ALWAYS" />
+         <Button fx:id="buttonMoveUp" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonMoveUp" text="Move up" HBox.hgrow="ALWAYS" />
+         <Button fx:id="buttonMoveDown" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonMoveDown" text="Move down" HBox.hgrow="ALWAYS" />
+      </HBox>
+      <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="25.0" prefWidth="200.0" spacing="5.0">
+         <children>
+            <Button fx:id="buttonSave" maxWidth="1.7976931348623157E308" minWidth="130.0" mnemonicParsing="false" onAction="#handleClickButtonSave" text="Save" HBox.hgrow="ALWAYS" />
+            <Button fx:id="buttonSaveQuit" defaultButton="true" maxWidth="1.7976931348623157E308" minWidth="130.0" mnemonicParsing="false" onAction="#handleClickButtonQuitSave" text="Quit and save" HBox.hgrow="ALWAYS" />
+            <Button cancelButton="true" maxWidth="1.7976931348623157E308" minWidth="130.0" mnemonicParsing="false" onAction="#quitWithConfirmation" text="Quit without saving" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

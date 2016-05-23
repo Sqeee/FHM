@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="-Infinity" minHeight="-Infinity" maxHeight="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.sci.astro.fhm.gui.ConcatenationManagerController">
+   <children>
+      <HBox spacing="5.0" VBox.vgrow="ALWAYS">
+         <children>
+            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="Card Values:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <HBox alignment="CENTER" spacing="5.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <ListView fx:id="listViewCardValues" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="buttonCardValuesAdd" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonCardValuesAdd" prefWidth="100.0" text="Add" />
+                     </children>
+                  </HBox>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="Custom value:">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <HBox spacing="5.0">
+                           <children>
+                              <TextField fx:id="textFieldCustomValue" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="buttonCustomValueAdd" disable="true" mnemonicParsing="false" onAction="#handleClickButtonCustomValueAdd" prefWidth="100.0" text="Add" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="Concatenation values:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <HBox spacing="5.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <ListView fx:id="listViewConcatenation" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <VBox alignment="CENTER" spacing="5.0">
+                           <children>
+                              <Button fx:id="buttonCopyValue" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonCopyValue" prefWidth="100.0" text="Copy value" />
+                              <Button fx:id="buttonRemove" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonRemove" prefWidth="100.0" text="Remove" />
+                              <Button fx:id="buttonMoveUp" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonMoveUp" prefWidth="100.0" text="Move up" />
+                              <Button fx:id="buttonMoveDown" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonMoveDown" prefWidth="100.0" text="Move down" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <HBox spacing="5.0">
+                     <children>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Concatenation glue string:">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="textFieldGlue" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                        <VBox spacing="5.0">
+                           <children>
+                              <Label text="Target:">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <ChoiceBox fx:id="choiceBoxTarget" prefWidth="100.0" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <HBox spacing="5.0">
+         <children>
+            <Button defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonUseConcatenation" prefWidth="225.0" text="Use concatenation string" HBox.hgrow="ALWAYS" />
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonPreviewConcatenation" prefWidth="225.0" text="Concatenation preview" HBox.hgrow="ALWAYS" />
+            <Button cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonCancel" prefWidth="225.0" text="Cancel" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</VBox>

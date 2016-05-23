@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.sci.astro.fhm.gui.SelectFiles1Controller">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+            <children>
+                <Label alignment="BOTTOM_LEFT" text="Directory:">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Label>
+                <TextField fx:id="textFieldChooseDir" prefHeight="25.0" prefWidth="141.0" HBox.hgrow="ALWAYS" />
+                <Button fx:id="buttonChooseDir" mnemonicParsing="false" onAction="#handleClickButtonChooseDir" text="Choose a directory..." />
+            </children>
+        </HBox>
+        <ListView fx:id="listViewFiles" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+        <Separator prefWidth="200.0" />
+        <Label fx:id="labelFiltering" disable="true" text="Filtering options:">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+            <children>
+                <Label fx:id="labelFilteringFilename" alignment="BOTTOM_LEFT" disable="true" text="Filename:">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Label>
+                <TextField fx:id="textFieldFilteringFilename" disable="true" onAction="#handleApplyFilter" prefHeight="25.0" prefWidth="141.0" HBox.hgrow="ALWAYS" />
+                <Button fx:id="buttonApplyFilter" disable="true" mnemonicParsing="false" onAction="#handleApplyFilter" text="Apply filter" />
+            </children>
+        </HBox>
+        <HBox prefHeight="25.0" prefWidth="200.0" spacing="5.0">
+            <children>
+            <Button fx:id="buttonDeselectAll" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonDeselectAll" text="Deselect all" HBox.hgrow="ALWAYS" />
+            <Button fx:id="buttonSelectAll" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonSelectAll" text="Select all" HBox.hgrow="ALWAYS" />
+                <Button fx:id="buttonContinue" defaultButton="true" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonContinue" text="Continue" HBox.hgrow="ALWAYS" />
+            </children>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+</VBox>

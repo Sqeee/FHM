@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+
+<GridPane alignment="center" hgap="10" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="10" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.sci.astro.fhm.gui.MainViewController">
+    <columnConstraints>
+        <ColumnConstraints percentWidth="100.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="100.0" />
+    </rowConstraints>
+    <children>
+        <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+            <top>
+                <fx:include fx:id="menuBar" source="MenuBar.fxml" />
+            </top>
+            <center>
+                <StackPane fx:id="content" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                    <fx:include fx:id="selectFiles1" source="SelectFiles1.fxml" />
+                </StackPane>
+            </center>
+        </BorderPane>
+    </children>
+</GridPane>

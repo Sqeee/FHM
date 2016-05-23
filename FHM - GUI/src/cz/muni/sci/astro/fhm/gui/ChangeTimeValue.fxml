@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="5.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.sci.astro.fhm.gui.ChangeTimeValueController">
+   <children>
+      <HBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="Original value:">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldOriginalValue" editable="false" focusTraversable="false" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#handleClickButtonCopyToActual" text="Copy to actual value" />
+         </children>
+      </HBox>
+      <Separator prefWidth="200.0" />
+      <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="5.0">
+         <children>
+            <Label text="Actual value:">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldActualValue" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+            <RadioButton fx:id="toggleUTC_Date" mnemonicParsing="false" onAction="#handleClickToggleDateMode" selected="true" text="UTC Date">
+               <toggleGroup>
+                  <ToggleGroup fx:id="toggleGroupDateMode" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="toggleJD_Date" mnemonicParsing="false" onAction="#handleClickToggleDateMode" text="Julian Day Date" toggleGroup="$toggleGroupDateMode" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="Shifting:" HBox.hgrow="ALWAYS">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldShifting" maxWidth="1.7976931348623157E308" prefWidth="138.0" HBox.hgrow="ALWAYS" />
+            <ChoiceBox fx:id="choiceBoxShifting" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonShift" text="Shift" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="Format of UTC date:">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <ChoiceBox fx:id="choiceBoxUTC_Format" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+            <Button fx:id="buttonChangeUTC_Format" mnemonicParsing="false" onAction="#handleClickButtonChangeUTC_Format" text="Change format" />
+         </children>
+      </HBox>
+      <HBox prefWidth="200.0" spacing="5.0">
+         <children>
+            <Button defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonUseActualValue" text="Use actual value" HBox.hgrow="ALWAYS" />
+            <Button cancelButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonUseDefaultValue" text="Use original value" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</VBox>
