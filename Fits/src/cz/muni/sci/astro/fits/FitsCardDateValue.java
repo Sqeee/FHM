@@ -14,8 +14,7 @@ import java.util.List;
  *
  * @author Jan Hlava, 395986
  */
-public class FitsCardDateValue
-{
+public class FitsCardDateValue {
     private static final String[] acceptableFormats = {
             "uuuu-MM-dd'T'HH:mm:ss", "uuuu-MM-dd'T'H:mm:ss",
             "uuuu-MM-dd HH:mm:ss", "uuuu-MM-dd H:mm:ss",
@@ -35,8 +34,7 @@ public class FitsCardDateValue
     /**
      * Creates new date value with now time and default format -> 2015-04-10T16:47:54.415
      */
-    public FitsCardDateValue()
-    {
+    public FitsCardDateValue() {
         date = LocalDateTime.now();
         originDate = date.withYear(date.getYear()); // creates copy
         formatIndex = 0;
@@ -50,49 +48,28 @@ public class FitsCardDateValue
      * @return new date value created form given text representation of date
      * @throws FitsCardDateValueUnknownFormatException throws when given text has unknown date format
      */
-    public static FitsCardDateValue createFromDateString(String text) throws FitsCardDateValueUnknownFormatException
-    {
+    public static FitsCardDateValue createFromDateString(String text) throws FitsCardDateValueUnknownFormatException {
         FitsCardDateValue newDateValue = new FitsCardDateValue();
         DateTimeFormatter formatter;
-        for (String format : acceptableFormats)
-        {
+        for (String format : acceptableFormats) {
             formatter = createDateTimeFormatter(format);
-            try
-            {
-                if (format.contains("u") && format.contains("m"))
-                {
+            try {
+                if (format.contains("u") && format.contains("m")) {
                     newDateValue.date = LocalDateTime.parse(text, formatter);
-                }
-                else if (format.contains("u"))
-                {
+                } else if (format.contains("u")) {
                     newDateValue.date = LocalDate.parse(text, formatter).atTime(0, 0);
-                }
-                else
-                {
+                } else {
                     newDateValue.date = LocalTime.parse(text, formatter).atDate(LocalDate.of(-4713, 11, 25));
                 }
                 newDateValue.formatter = formatter;
                 newDateValue.formatIndex = getAcceptableFormats().indexOf(format);
                 newDateValue.originDate = newDateValue.date.withYear(newDateValue.date.getYear());
                 return newDateValue;
+            } catch (DateTimeParseException ignored) {
             }
-            catch (DateTimeParseException ignored)
-            {}
         }
         // if no value was not returned, throws exception
         throw new FitsCardDateValueUnknownFormatException(text + " has unknown date format");
-    }
-
-    /**
-     * Do date shift
-     *
-     * @param value value to be shifted
-     * @param interval interval to be shifted
-     */
-    public void doShift(int value, ChronoUnit interval)
-    {
-        date = date.plus(value, interval);
-        updateValueInOwner();
     }
 
     /**
@@ -101,8 +78,7 @@ public class FitsCardDateValue
      * @param julianDay julian day for conversion
      * @return new data value created from given julian day
      */
-    public static FitsCardDateValue createFromJulianDay(double julianDay)
-    {
+    public static FitsCardDateValue createFromJulianDay(double julianDay) {
         FitsCardDateValue newDateValue = new FitsCardDateValue();
         newDateValue.originJD = julianDay;
         double jdn = Math.floor(julianDay + 0.5);
@@ -135,12 +111,62 @@ public class FitsCardDateValue
     }
 
     /**
+     * Returns list of acceptable formats
+     *
+     * @return list of acceptable formats
+     */
+    public static List<String> getAcceptableFormats() {
+        return Arrays.asList(acceptableFormats);
+    }
+
+    /**
+     * Returns date time formatter created from given format
+     *
+     * @param format format for new date time formatter
+     * @return date time formatter created from given format
+     */
+    private static DateTimeFormatter createDateTimeFormatter(String format) {
+        return new DateTimeFormatterBuilder().appendPattern(format).appendFraction(ChronoField.NANO_OF_SECOND, 0, MAX_FRACTION_DIGITS, true).toFormatter();
+    }
+
+    /**
+     * Parses JD string and returns FitsCardDateValue
+     *
+     * @param jdString string containing JD
+     * @return FitsCardDateValue from parsed JD string
+     * @throws NumberFormatException throws it, if string is not parsable as JD
+     */
+    public static FitsCardDateValue parseJDString(String jdString) throws NumberFormatException {
+        Number jd;
+        if (jdString.contains(".")) {
+            jd = Double.parseDouble(jdString);
+        } else {
+            jd = Integer.parseInt(jdString);
+        }
+        if (jd.doubleValue() >= 0.0) {
+            return createFromJulianDay(jd.doubleValue());
+        } else {
+            throw new NumberFormatException("JD should not be negative.");
+        }
+    }
+
+    /**
+     * Do date shift
+     *
+     * @param value    value to be shifted
+     * @param interval interval to be shifted
+     */
+    public void doShift(int value, ChronoUnit interval) {
+        date = date.plus(value, interval);
+        updateValueInOwner();
+    }
+
+    /**
      * Returns Julian Day, converting is made by algorithm described on https://en.wikipedia.org/wiki/Julian_day#Converting_Julian_or_Gregorian_calendar_date_to_Julian_day_number
      *
      * @return Julian Day
      */
-    public double getJulianDay()
-    {
+    public double getJulianDay() {
         if (date.equals(originDate) && originJD != null) // if date was not changed, show original JD - the reason for this is, that computed value can be affected by flooring
         {
             return originJD;
@@ -162,8 +188,7 @@ public class FitsCardDateValue
      *
      * @return date value
      */
-    public LocalDateTime getDate()
-    {
+    public LocalDateTime getDate() {
         return date;
     }
 
@@ -173,8 +198,7 @@ public class FitsCardDateValue
      * @return string representation of this date
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return date.format(formatter);
     }
 
@@ -183,19 +207,17 @@ public class FitsCardDateValue
      *
      * @return true if date value was created from classical date, otherwise false
      */
-    public boolean isCreatedFromClassicDate()
-    {
+    public boolean isCreatedFromClassicDate() {
         return originJD == null;
     }
 
     /**
-     * Returns list of acceptable formats
+     * Returns string representation of format
      *
-     * @return list of acceptable formats
+     * @return string representation of format
      */
-    public static List<String> getAcceptableFormats()
-    {
-        return Arrays.asList(acceptableFormats);
+    public String getFormat() {
+        return acceptableFormats[formatIndex];
     }
 
     /**
@@ -204,29 +226,15 @@ public class FitsCardDateValue
      * @param format format of date
      * @throws FitsCardDateValueUnknownFormatException throws exception in case of given format is not in accepted formats
      */
-    public void setFormat(String format) throws FitsCardDateValueUnknownFormatException
-    {
+    public void setFormat(String format) throws FitsCardDateValueUnknownFormatException {
         List<String> acceptedFormats = getAcceptableFormats();
-        if (acceptedFormats.contains(format))
-        {
+        if (acceptedFormats.contains(format)) {
             formatter = createDateTimeFormatter(format);
             formatIndex = acceptedFormats.indexOf(format);
             updateValueInOwner();
-        }
-        else
-        {
+        } else {
             throw new FitsCardDateValueUnknownFormatException("Unknown format");
         }
-    }
-
-    /**
-     * Returns string representation of format
-     *
-     * @return string representation of format
-     */
-    public String getFormat()
-    {
-        return acceptableFormats[formatIndex];
     }
 
     /**
@@ -234,63 +242,18 @@ public class FitsCardDateValue
      *
      * @param owner card to which belongs this date time value
      */
-    public void setOwner(FitsCard owner)
-    {
+    public void setOwner(FitsCard owner) {
         this.owner = owner;
-    }
-
-    /**
-     * Returns date time formatter created from given format
-     *
-     * @param format format for new date time formatter
-     * @return date time formatter created from given format
-     */
-    private static DateTimeFormatter createDateTimeFormatter(String format)
-    {
-        return new DateTimeFormatterBuilder().appendPattern(format).appendFraction(ChronoField.NANO_OF_SECOND, 0, MAX_FRACTION_DIGITS, true).toFormatter();
-    }
-
-    /**
-     * Parses JD string and returns FitsCardDateValue
-     *
-     * @param jdString string containing JD
-     * @return FitsCardDateValue from parsed JD string
-     * @throws NumberFormatException throws it, if string is not parsable as JD
-     */
-    public static FitsCardDateValue parseJDString(String jdString) throws NumberFormatException
-    {
-        Number jd;
-        if (jdString.contains("."))
-        {
-            jd = Double.parseDouble(jdString);
-        }
-        else
-        {
-            jd = Integer.parseInt(jdString);
-        }
-        if (jd.doubleValue() >= 0.0)
-        {
-            return createFromJulianDay(jd.doubleValue());
-        }
-        else
-        {
-            throw new NumberFormatException("JD should not be negative.");
-        }
     }
 
     /**
      * Updates value in owner to be up to date
      */
-    private void updateValueInOwner()
-    {
-        if (owner != null)
-        {
-            if (isCreatedFromClassicDate())
-            {
+    private void updateValueInOwner() {
+        if (owner != null) {
+            if (isCreatedFromClassicDate()) {
                 owner.setRValue(toString());
-            }
-            else
-            {
+            } else {
                 owner.setRValue(Double.toString(getJulianDay()));
             }
         }

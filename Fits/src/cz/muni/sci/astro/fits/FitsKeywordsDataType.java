@@ -5,7 +5,6 @@ package cz.muni.sci.astro.fits;
  *
  * @author Jan Hlava, 395986
  */
-public enum FitsKeywordsDataType
-{
+public enum FitsKeywordsDataType {
     NONE, LOGICAL, INT, REAL, LITERAL, CUSTOM
 }

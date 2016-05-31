@@ -12,11 +12,13 @@ import java.io.IOException;
  *
  * @author Jan Hlava, 395986
  */
-public class MainViewController
-{
-    @FXML private SelectFiles1Controller selectFiles1Controller;
-    @FXML private Pane content;
-    @FXML private MenuBar menuBar;
+public class MainViewController {
+    @FXML
+    private SelectFiles1Controller selectFiles1Controller;
+    @FXML
+    private Pane content;
+    @FXML
+    private MenuBar menuBar;
 
     /**
      * Sets new main content loaded from given FXML document
@@ -24,18 +26,14 @@ public class MainViewController
      * @param fxmlFilename filename to FXML document for loading
      * @return controller of newly loaded FXML document (null in case of error)
      */
-    public Object setContent(String fxmlFilename)
-    {
+    public Object setContent(String fxmlFilename) {
         content.getChildren().clear();
-        try
-        {
+        try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlFilename));
             content.getChildren().clear();
             content.getChildren().add(fxmlLoader.load());
             return fxmlLoader.getController();
-        }
-        catch (IOException exc)
-        {
+        } catch (IOException exc) {
             return null;
         }
     }
@@ -45,8 +43,7 @@ public class MainViewController
      *
      * @return app menu bar
      */
-    public MenuBar getMenuBar()
-    {
+    public MenuBar getMenuBar() {
         return menuBar;
     }
 
@@ -54,8 +51,7 @@ public class MainViewController
      * Initializes this controller
      */
     @FXML
-    public void initialize()
-    {
+    public void initialize() {
         selectFiles1Controller.setMainViewController(this);
     }
 }

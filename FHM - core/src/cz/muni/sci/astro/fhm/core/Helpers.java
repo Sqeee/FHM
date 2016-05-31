@@ -9,19 +9,17 @@ import java.util.Locale;
  *
  * @author Jan Hlava, 395986
  */
-public class Helpers
-{
+public class Helpers {
     /**
      * Formats double - show max 9 fraction digits
      *
-     * @param d double to format
+     * @param number double number to format
      * @return string representation of double
      */
-    public static String formatDouble(double d)
-    {
+    public static String formatDouble(double number) {
         NumberFormat format = DecimalFormat.getInstance(Locale.US);
         format.setMaximumFractionDigits(9);
         format.setGroupingUsed(false);
-        return format.format(d);
+        return format.format(number);
     }
 }

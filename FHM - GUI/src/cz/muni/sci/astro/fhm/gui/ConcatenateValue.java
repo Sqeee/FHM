@@ -5,19 +5,17 @@ package cz.muni.sci.astro.fhm.gui;
  *
  * @author Jan Hlava, 395986
  */
-public class ConcatenateValue
-{
+public class ConcatenateValue {
     private ConcatenateType type;
     private String value;
 
     /**
      * Creates instance of this class
      *
-     * @param type type of concatenation
+     * @param type  type of concatenation
      * @param value value of concatenation
      */
-    public ConcatenateValue(ConcatenateType type, String value)
-    {
+    public ConcatenateValue(ConcatenateType type, String value) {
         this.type = type;
         this.value = value;
     }
@@ -28,8 +26,7 @@ public class ConcatenateValue
      * @return string representation of concatenation value
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return type.toString() + ": \"" + value + "\"";
     }
 
@@ -38,8 +35,7 @@ public class ConcatenateValue
      *
      * @return export representation of concatenation value, it is good for processing
      */
-    public String toExport()
-    {
+    public String toExport() {
         return type.getPrefix() + value;
     }
 }

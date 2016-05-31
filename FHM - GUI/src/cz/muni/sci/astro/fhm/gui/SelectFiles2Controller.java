@@ -18,12 +18,15 @@ import java.util.List;
  *
  * @author Jan Hlava, 395986
  */
-public class SelectFiles2Controller
-{
-    @FXML private MainViewController mainViewController;
-    @FXML private ListView<String> listViewSelectedFiles;
-    @FXML private TextArea textAreaFiltering;
-    @FXML private Button buttonContinue;
+public class SelectFiles2Controller {
+    @FXML
+    private MainViewController mainViewController;
+    @FXML
+    private ListView<String> listViewSelectedFiles;
+    @FXML
+    private TextArea textAreaFiltering;
+    @FXML
+    private Button buttonContinue;
 
     private List<String> files;
     private String dir;
@@ -33,8 +36,7 @@ public class SelectFiles2Controller
      *
      * @param files file list to working with
      */
-    public void setFiles(List<String> files)
-    {
+    public void setFiles(List<String> files) {
         this.files = files;
     }
 
@@ -43,8 +45,7 @@ public class SelectFiles2Controller
      *
      * @param dir directory, where files are located
      */
-    public void setDir(String dir)
-    {
+    public void setDir(String dir) {
         this.dir = dir;
     }
 
@@ -53,16 +54,14 @@ public class SelectFiles2Controller
      *
      * @param mainViewController MainViewController controller
      */
-    public void setMainViewController(MainViewController mainViewController)
-    {
+    public void setMainViewController(MainViewController mainViewController) {
         this.mainViewController = mainViewController;
     }
 
     /**
      * Prepares this form - set files to listView, set multiple selection, listener for disabling Continue button and select all files
      */
-    public void prepareWindow()
-    {
+    public void prepareWindow() {
         listViewSelectedFiles.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         listViewSelectedFiles.setItems(FXCollections.observableList(files));
         listViewSelectedFiles.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {
@@ -74,11 +73,10 @@ public class SelectFiles2Controller
     /**
      * Handles click on button Preview - deselect all files, apply filter and request focus
      */
-    @FXML private void handleClickButtonPreview()
-    {
+    @FXML
+    private void handleClickButtonPreview() {
         listViewSelectedFiles.getSelectionModel().select(-1);
-        for (String name : applyFilter())
-        {
+        for (String name : applyFilter()) {
             listViewSelectedFiles.getSelectionModel().select(name);
         }
         listViewSelectedFiles.requestFocus();
@@ -87,8 +85,8 @@ public class SelectFiles2Controller
     /**
      * Handles click on button Select all - select all files and request focus
      */
-    @FXML private void handleClickButtonSelectAll()
-    {
+    @FXML
+    private void handleClickButtonSelectAll() {
         listViewSelectedFiles.getSelectionModel().selectAll();
         listViewSelectedFiles.requestFocus();
     }
@@ -96,8 +94,8 @@ public class SelectFiles2Controller
     /**
      * Handles click on button Continue - prepare next form
      */
-    @FXML private void handleClickButtonContinue()
-    {
+    @FXML
+    private void handleClickButtonContinue() {
         MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("MultipleEdit.fxml");
         multipleEditController.setMainViewController(mainViewController);
         multipleEditController.setDir(dir);
@@ -110,10 +108,8 @@ public class SelectFiles2Controller
      *
      * @return filtered FITS files
      */
-    private List<String> applyFilter()
-    {
-        if (textAreaFiltering.getText().trim().isEmpty())
-        {
+    private List<String> applyFilter() {
+        if (textAreaFiltering.getText().trim().isEmpty()) {
             return files;
         }
         List<String> result = new ArrayList<>();
@@ -128,43 +124,32 @@ public class SelectFiles2Controller
 
         ScriptEngine engine;
         FitsFile file;
-        for (String name : files)
-        {
-            try
-            {
+        for (String name : files) {
+            try {
                 file = new FitsFile(new File(dir + '/' + name));
-            }
-            catch (FitsException exc)
-            {
+            } catch (FitsException exc) {
                 continue;
             }
-            try
-            {
+            try {
                 boolean accepted = true;
-                for (int i = 0; i < file.getCountHDUs(); i++)
-                {
+                for (int i = 0; i < file.getCountHDUs(); i++) {
                     engine = new ScriptEngineManager().getEngineByName("JavaScript");
                     engine.eval(file.getHDU(i).getHeader().getJavaScriptKeywordsAndValues());
                     // Evaluate (card is definition, filtering is formula to test)
-                    if (!engine.eval(conditions).equals(true))
-                    {
+                    if (!engine.eval(conditions).equals(true)) {
                         accepted = false;
                     }
                 }
-                if (accepted)
-                {
+                if (accepted) {
                     result.add(name);
                 }
-            }
-            catch (ScriptException ignored) // if throws exception, then I consider it as not accepted file by conditions
-            {}
-            finally
+            } catch (ScriptException ignored) // if throws exception, then I consider it as not accepted file by conditions
             {
+            } finally {
                 file.closeFile();
             }
         }
-        if (result.isEmpty())
-        {
+        if (result.isEmpty()) {
             buttonContinue.setDisable(true);
         }
         return result;

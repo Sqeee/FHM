@@ -5,8 +5,7 @@ package cz.muni.sci.astro.fits;
  *
  * @author Jan Hlava, 395986
  */
-public enum FitsImageType
-{
+public enum FitsImageType {
     UNKNOWN("Unknown"),
     LIGHT_FRAME("Light Frame"),
     FLAT_FIELD("Flat Field"),
@@ -21,8 +20,7 @@ public enum FitsImageType
      *
      * @param type type of image type
      */
-    FitsImageType(String type)
-    {
+    FitsImageType(String type) {
         this.type = type;
     }
 
@@ -32,8 +30,7 @@ public enum FitsImageType
      * @return string representation of enum
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return type;
     }
 }

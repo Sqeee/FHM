@@ -5,7 +5,6 @@ package cz.muni.sci.astro.fhm.core;
  *
  * @author Jan Hlava, 395986
  */
-public interface PrintOutputMethod
-{
+public interface PrintOutputMethod {
     void print(String... parts);
 }

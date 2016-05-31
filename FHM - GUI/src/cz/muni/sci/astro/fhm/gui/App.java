@@ -11,8 +11,16 @@ import javafx.stage.Stage;
  *
  * @author Jan Hlava, 395986
  */
-public class App extends Application
-{
+public class App extends Application {
+    /**
+     * Launch GUI
+     *
+     * @param args array containing params from command line
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     /**
      * Starts GUI
      *
@@ -20,8 +28,7 @@ public class App extends Application
      * @throws Exception exception
      */
     @Override
-    public void start(Stage primaryStage) throws Exception
-    {
+    public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("MainView.fxml"));
         primaryStage.setMinHeight(560);
         primaryStage.setMinWidth(750);
@@ -29,15 +36,5 @@ public class App extends Application
         primaryStage.setScene(new Scene(root, 750, 560));
         GUIHelpers.setIcons(primaryStage);
         primaryStage.show();
-    }
-
-    /**
-     * Launch GUI
-     *
-     * @param args array containing params from command line
-     */
-    public static void main(String[] args)
-    {
-        launch(args);
     }
 }

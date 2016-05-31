@@ -15,32 +15,26 @@ import javafx.scene.input.KeyCode;
  *
  * @author Jan Hlava, 395986
  */
-public class TextFieldKeywordTableCell extends TableCell<FitsCard, String>
-{
+public class TextFieldKeywordTableCell extends TableCell<FitsCard, String> {
     private final TextFieldMaxLength textFieldKeyword;
 
     /**
      * Creates new instance of this component
      */
-    public TextFieldKeywordTableCell()
-    {
+    public TextFieldKeywordTableCell() {
         textFieldKeyword = new TextFieldMaxLength("", FitsFile.KEYWORD_LENGTH);
         textFieldKeyword.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.ENTER)
-            {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
                 commitEdit(textFieldKeyword.getText());
                 requestFocus();
                 getTableView().requestFocus();
-            }
-            else if (keyEvent.getCode() == KeyCode.ESCAPE)
-            {
+            } else if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 textFieldKeyword.setText(getItem());
                 cancelEdit();
             }
         });
         textFieldKeyword.focusedProperty().addListener((ov, before, after) -> {
-            if (!after)
-            {
+            if (!after) {
                 commitEdit(textFieldKeyword.getText());
             }
         });
@@ -50,8 +44,7 @@ public class TextFieldKeywordTableCell extends TableCell<FitsCard, String>
      * Handles start of editing - sets text
      */
     @Override
-    public void startEdit()
-    {
+    public void startEdit() {
         super.startEdit();
         textFieldKeyword.setText(getItem());
         setText(null);
@@ -63,27 +56,20 @@ public class TextFieldKeywordTableCell extends TableCell<FitsCard, String>
     /**
      * Handles updating item
      *
-     * @param item item to update
+     * @param item  item to update
      * @param empty is item empty
      */
     @Override
-    public void updateItem(String item, boolean empty)
-    {
+    public void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);
-        if (empty)
-        {
+        if (empty) {
             setText(null);
             setGraphic(null);
-        }
-        else
-        {
-            if (isEditing())
-            {
+        } else {
+            if (isEditing()) {
                 setText(null);
                 setGraphic(textFieldKeyword);
-            }
-            else
-            {
+            } else {
                 setText(getItem());
                 setGraphic(null);
             }
@@ -96,13 +82,10 @@ public class TextFieldKeywordTableCell extends TableCell<FitsCard, String>
      * @param item item to commit
      */
     @Override
-    public void commitEdit(String item)
-    {
-        if (!isEditing() && (item == null || !item.equals(getItem())))
-        {
+    public void commitEdit(String item) {
+        if (!isEditing() && (item == null || !item.equals(getItem()))) {
             TableView<FitsCard> table = getTableView();
-            if (table != null)
-            {
+            if (table != null) {
                 TableColumn<FitsCard, String> column = getTableColumn();
                 CellEditEvent<FitsCard, String> event = new CellEditEvent<>(table, new TablePosition<>(table, getIndex(), column), TableColumn.editCommitEvent(), item);
                 Event.fireEvent(column, event);
@@ -115,8 +98,7 @@ public class TextFieldKeywordTableCell extends TableCell<FitsCard, String>
      * Handles cancel of editing
      */
     @Override
-    public void cancelEdit()
-    {
+    public void cancelEdit() {
         super.cancelEdit();
         setText(getItem());
         setGraphic(null);

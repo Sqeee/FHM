@@ -7,8 +7,7 @@ import cz.muni.sci.astro.fhm.core.MultipleOperationsRunner;
  *
  * @author Jan Hlava, 395986
  */
-public enum ConcatenateType
-{
+public enum ConcatenateType {
     STRING,
     KEYWORD_VALUE;
 
@@ -17,18 +16,12 @@ public enum ConcatenateType
      *
      * @return prefix for this type
      */
-    public String getPrefix()
-    {
-        if (this == STRING)
-        {
+    public String getPrefix() {
+        if (this == STRING) {
             return MultipleOperationsRunner.PARAM_CONCATENATION_STRING_PREFIX;
-        }
-        else if (this == KEYWORD_VALUE)
-        {
+        } else if (this == KEYWORD_VALUE) {
             return MultipleOperationsRunner.PARAM_CONCATENATION_KEYWORD_VALUE_PREFIX;
-        }
-        else
-        {
+        } else {
             return "Unknown";
         }
     }
@@ -38,18 +31,12 @@ public enum ConcatenateType
      *
      * @return string representation
      */
-    public String toString()
-    {
-        if (this == STRING)
-        {
+    public String toString() {
+        if (this == STRING) {
             return "String";
-        }
-        else if (this == KEYWORD_VALUE)
-        {
+        } else if (this == KEYWORD_VALUE) {
             return "Keyword value";
-        }
-        else
-        {
+        } else {
             return "Unknown";
         }
     }

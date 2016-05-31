@@ -5,15 +5,13 @@ package cz.muni.sci.astro.fits;
  *
  * @author Jan Hlava, 395986
  */
-public class FitsFileException extends FitsException
-{
+public class FitsFileException extends FitsException {
     /**
      * Creates exception with given message
      *
      * @param message description of exception
      */
-    public FitsFileException(String message)
-    {
+    public FitsFileException(String message) {
         super(message);
     }
 
@@ -21,10 +19,9 @@ public class FitsFileException extends FitsException
      * Creates exception with given message and cause
      *
      * @param message description of exception
-     * @param cause cause of exception
+     * @param cause   cause of exception
      */
-    public FitsFileException(String message, Throwable cause)
-    {
+    public FitsFileException(String message, Throwable cause) {
         super(message, cause);
     }
 }

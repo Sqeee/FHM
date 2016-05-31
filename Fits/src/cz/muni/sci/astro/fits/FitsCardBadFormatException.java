@@ -5,15 +5,13 @@ package cz.muni.sci.astro.fits;
  *
  * @author Jan Hlava, 395986
  */
-public class FitsCardBadFormatException extends FitsException
-{
+public class FitsCardBadFormatException extends FitsException {
     /**
      * Creates exception with given message
      *
      * @param message description of exception
      */
-    public FitsCardBadFormatException(String message)
-    {
+    public FitsCardBadFormatException(String message) {
         super(message);
     }
 
@@ -21,10 +19,9 @@ public class FitsCardBadFormatException extends FitsException
      * Creates exception with given message and cause
      *
      * @param message description of exception
-     * @param cause cause of exception
+     * @param cause   cause of exception
      */
-    public FitsCardBadFormatException(String message, Throwable cause)
-    {
+    public FitsCardBadFormatException(String message, Throwable cause) {
         super(message, cause);
     }
 }

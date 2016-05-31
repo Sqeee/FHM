@@ -16,8 +16,7 @@ import java.io.IOException;
  *
  * @author Jan Hlava, 395986
  */
-public class MenuBarController
-{
+public class MenuBarController {
     public static final int MENU_FILE = 0;
     public static final int MENU_ITEM_FILE_SAVE = 0;
     public static final int MENU_ITEM_FILE_EXIT = 1;
@@ -27,14 +26,14 @@ public class MenuBarController
     public static final int MENU_TOOLS = 2;
     public static final int MENU_ITEM_TOOLS_CONCATENATION_MANAGER = 1;
 
-    @FXML private MenuBar menuBar;
+    @FXML
+    private MenuBar menuBar;
 
     /**
      * Handles click on menu item Exit - closes this app
      */
     @FXML
-    private void handleClickMenuItemExit()
-    {
+    private void handleClickMenuItemExit() {
         Platform.exit();
         System.exit(0);
     }
@@ -43,8 +42,7 @@ public class MenuBarController
      * Handles click on menu item About - prints short description about this app
      */
     @FXML
-    private void handleClickMenuItemAbout()
-    {
+    private void handleClickMenuItemAbout() {
         GUIHelpers.showAlert(AlertType.INFORMATION, "About", "File Header Modifier", "This application provides tools to modify FITS headers. You can open multiple files from one directory, filter them by name or content. After choosing files you can edit card images in header.\n\nContact e-mail: honzahlava@mail.muni.cz");
     }
 
@@ -52,10 +50,8 @@ public class MenuBarController
      * Handles click on menu item UTC and JD converter - shows window with converting options
      */
     @FXML
-    private void handleClickMenuItemUTC_JD_Converter()
-    {
-        try
-        {
+    private void handleClickMenuItemUTC_JD_Converter() {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Converter.fxml"));
             VBox vBox = loader.load();
             Stage converter = new Stage();
@@ -68,8 +64,7 @@ public class MenuBarController
             converter.setMaxHeight(178);
             GUIHelpers.setIcons(converter);
             converter.show();
+        } catch (IOException ignored) {
         }
-        catch (IOException ignored)
-        {}
     }
 }

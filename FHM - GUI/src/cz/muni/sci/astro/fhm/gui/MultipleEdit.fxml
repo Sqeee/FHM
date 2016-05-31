@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
@@ -20,9 +21,9 @@
                   <ListView fx:id="listViewFiles" VBox.vgrow="ALWAYS" />
                   <HBox spacing="5.0">
                      <children>
-                        <Button fx:id="buttonDeselectAll" disable="true" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonDeselectAll" text="Deselect all" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="buttonDeselectAll" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonDeselectAll" text="Deselect all" HBox.hgrow="ALWAYS" />
                         <Button fx:id="buttonSelectAll" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonSelectAll" text="Select all" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="buttonInvertSelection" disable="true" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonInvertSelection" text="Invert" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="buttonInvertSelection" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonInvertSelection" text="Invert" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
                </children>
@@ -41,7 +42,7 @@
                         <content>
                               <GridPane hgap="5.0" vgap="5.0">
                                  <columnConstraints>
-                                    <ColumnConstraints minWidth="140.0" />
+                                    <ColumnConstraints minWidth="150.0" />
                                     <ColumnConstraints minWidth="115.0" />
                                     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
                                  </columnConstraints>
@@ -64,6 +65,18 @@
                                     <TextField fx:id="textFieldAddCardRValue" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                                     <TextField fx:id="textFieldAddCardIValue" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
                                     <TextField fx:id="textFieldAddCardComment" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                                    <TextField fx:id="textFieldAddCardIndex" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                    <TextField fx:id="textFieldAddCardAfterKeyword" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                    <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="1">
+                                       <children>
+                                          <CheckBox fx:id="checkBoxAddCardRValue" mnemonicParsing="false" />
+                                          <Label text="Real/Literal value:">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
                                     <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                                        <children>
                                           <CheckBox fx:id="checkBoxAddCardIValue" mnemonicParsing="false" />
@@ -78,16 +91,6 @@
                                        <children>
                                           <CheckBox fx:id="checkBoxAddCardComment" mnemonicParsing="false" />
                                           <Label text="Comment:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="1">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxAddCardRValue" mnemonicParsing="false" />
-                                          <Label text="Real value:">
                                              <font>
                                                 <Font name="System Bold" size="12.0" />
                                              </font>
@@ -109,9 +112,7 @@
                                           <ToggleGroup fx:id="toggleGroupAddCardPosition" />
                                        </toggleGroup>
                                     </RadioButton>
-                                    <TextField fx:id="textFieldAddCardIndex" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                    <RadioButton mnemonicParsing="false" text="after keyword" toggleGroup="$toggleGroupAddCardPosition" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                    <TextField fx:id="textFieldAddCardAfterKeyword" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                    <RadioButton fx:id="toggleAddCardAfterCard" mnemonicParsing="false" text="after keyword" toggleGroup="$toggleGroupAddCardPosition" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                     <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="6">
                                        <children>
                                           <Button fx:id="buttonAddCard" disable="true" mnemonicParsing="false" onAction="#handleClickButtonAddCard" text="Add card" />
@@ -144,7 +145,7 @@
                                        </toggleGroup>
                                     </RadioButton>
                                     <TextField fx:id="textFieldRemoveCardKeyword" GridPane.columnIndex="1" />
-                                    <RadioButton mnemonicParsing="false" text="index" toggleGroup="$toggleGroupRemoveCard" GridPane.rowIndex="1" />
+                                    <RadioButton fx:id="toggleRemoveCardIndex" mnemonicParsing="false" text="index" toggleGroup="$toggleGroupRemoveCard" GridPane.rowIndex="1" />
                                     <TextField fx:id="textFieldRemoveCardIndex" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <Button fx:id="buttonRemoveCard" disable="true" mnemonicParsing="false" onAction="#handleClickButtonRemoveCard" text="Remove card" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                                  </children>
@@ -176,6 +177,12 @@
                                           <Font name="System Bold" size="12.0" />
                                        </font>
                                     </Label>
+                                    <TextField fx:id="textFieldChangeCardKeyword" GridPane.columnIndex="1" GridPane.valignment="CENTER" />
+                                    <TextField fx:id="textFieldChangeCardNewKeyword" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <TextField fx:id="textFieldChangeCardRValue" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <TextField fx:id="textFieldChangeCardIValue" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <TextField fx:id="textFieldChangeCardComment" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    <TextField fx:id="textFieldChangeCardIndex" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                     <HBox alignment="CENTER" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                                        <children>
                                           <CheckBox fx:id="checkBoxChangeCardNewKeyword" mnemonicParsing="false" />
@@ -186,16 +193,10 @@
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <TextField fx:id="textFieldChangeCardKeyword" GridPane.columnIndex="1" GridPane.valignment="CENTER" />
-                                    <TextField fx:id="textFieldChangeCardNewKeyword" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldChangeCardRValue" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <TextField fx:id="textFieldChangeCardIValue" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                    <TextField fx:id="textFieldChangeCardComment" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                    <TextField fx:id="textFieldChangeCardIndex" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                     <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="2">
                                        <children>
                                           <CheckBox fx:id="checkBoxChangeCardRValue" mnemonicParsing="false" />
-                                          <Label text="Real value:">
+                                          <Label text="Real/Literal value:">
                                              <font>
                                                 <Font name="System Bold" size="12.0" />
                                              </font>
@@ -407,13 +408,13 @@
                                     </Label>
                                     <TextField fx:id="textFieldJDKeyword" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                                     <TextField fx:id="textFieldJDSourceKeyword" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldJDDateTime" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                    <RadioButton fx:id="toggleJDKeyword" mnemonicParsing="false" selected="true" text="keyword" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <TextField fx:id="textFieldJDSourceDatetime" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <RadioButton fx:id="toggleJDSourceKeyword" mnemonicParsing="false" selected="true" text="keyword" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                        <toggleGroup>
                                           <ToggleGroup fx:id="toggleGroupJD" />
                                        </toggleGroup>
                                     </RadioButton>
-                                    <RadioButton mnemonicParsing="false" text="date time" toggleGroup="$toggleGroupJD" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <RadioButton fx:id="toggleJDSourceDatetime" mnemonicParsing="false" text="date time" toggleGroup="$toggleGroupJD" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                     <Label alignment="TOP_LEFT" text="Source:" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.rowSpan="2">
                                        <font>
                                           <Font name="System Bold" size="12.0" />

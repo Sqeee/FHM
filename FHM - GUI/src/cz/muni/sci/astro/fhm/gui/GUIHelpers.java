@@ -24,12 +24,10 @@ import java.util.Optional;
  *
  * @author Jan Hlava, 395986
  */
-public class GUIHelpers
-{
+public class GUIHelpers {
     private static final List<Image> icons;
 
-    static
-    {
+    static {
         icons = new ArrayList<>();
         icons.add(new Image(App.class.getResourceAsStream("icon128x128.png")));
         icons.add(new Image(App.class.getResourceAsStream("icon64x64.png")));
@@ -37,17 +35,17 @@ public class GUIHelpers
         icons.add(new Image(App.class.getResourceAsStream("icon32x32.png")));
         icons.add(new Image(App.class.getResourceAsStream("icon16x16.png")));
     }
+
     /**
      * Shows alert of given type
      *
      * @param alertType alert type
-     * @param title title text in alert
-     * @param header header text in alert
-     * @param content content text in alert
+     * @param title     title text in alert
+     * @param header    header text in alert
+     * @param content   content text in alert
      * @return returns result of dialog
      */
-    public static Optional<ButtonType> showAlert(AlertType alertType, String title, String header, String content)
-    {
+    public static Optional<ButtonType> showAlert(AlertType alertType, String title, String header, String content) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(header);
@@ -60,30 +58,22 @@ public class GUIHelpers
     /**
      * Checks move buttons and set their disable state according indexes
      *
-     * @param selectedIndex selected index of rows
-     * @param items count of rows
-     * @param buttonMoveUp button with action move up
+     * @param selectedIndex  selected index of rows
+     * @param items          count of rows
+     * @param buttonMoveUp   button with action move up
      * @param buttonMoveDown button with action move down
      */
-    public static void checkMoveButtons(int selectedIndex, int items, Button buttonMoveUp, Button buttonMoveDown)
-    {
-        if (selectedIndex == -1 || (selectedIndex == 0 && items == 1))
-        {
+    public static void checkMoveButtons(int selectedIndex, int items, Button buttonMoveUp, Button buttonMoveDown) {
+        if (selectedIndex == -1 || (selectedIndex == 0 && items == 1)) {
             buttonMoveDown.setDisable(true);
             buttonMoveUp.setDisable(true);
-        }
-        else if (selectedIndex == 0)
-        {
+        } else if (selectedIndex == 0) {
             buttonMoveDown.setDisable(false);
             buttonMoveUp.setDisable(true);
-        }
-        else if (selectedIndex + 1 == items)
-        {
+        } else if (selectedIndex + 1 == items) {
             buttonMoveDown.setDisable(true);
             buttonMoveUp.setDisable(false);
-        }
-        else
-        {
+        } else {
             buttonMoveDown.setDisable(false);
             buttonMoveUp.setDisable(false);
         }
@@ -94,8 +84,7 @@ public class GUIHelpers
      *
      * @param stage stage for setting icons
      */
-    public static void setIcons(Stage stage)
-    {
+    public static void setIcons(Stage stage) {
         stage.getIcons().addAll(icons);
     }
 
@@ -103,13 +92,12 @@ public class GUIHelpers
      * Modifies given menu item in given menu - sets disable state and event set on action
      *
      * @param mainViewController mainViewController containing menus
-     * @param menuIndex index of menu in menu bar
-     * @param menuItemIndex index of menu item in menu
-     * @param disable should be menu item disabled?
-     * @param setOnAction event for OnAction
+     * @param menuIndex          index of menu in menu bar
+     * @param menuItemIndex      index of menu item in menu
+     * @param disable            should be menu item disabled?
+     * @param setOnAction        event for OnAction
      */
-    public static void modifyMenuItem(MainViewController mainViewController, int menuIndex, int menuItemIndex, boolean disable, EventHandler<ActionEvent> setOnAction)
-    {
+    public static void modifyMenuItem(MainViewController mainViewController, int menuIndex, int menuItemIndex, boolean disable, EventHandler<ActionEvent> setOnAction) {
         MenuItem menuItem = mainViewController.getMenuBar().getMenus().get(menuIndex).getItems().get(menuItemIndex);
         menuItem.setDisable(disable);
         menuItem.setOnAction(setOnAction);

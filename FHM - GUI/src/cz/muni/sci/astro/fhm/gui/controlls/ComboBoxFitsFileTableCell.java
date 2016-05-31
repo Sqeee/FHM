@@ -14,33 +14,27 @@ import java.util.List;
  *
  * @author Jan Hlava, 395986
  */
-public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String>
-{
-    private final ComboBox<String> comboBox;
+public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String> {
     private static List<String> files;
+    private final ComboBox<String> comboBox;
 
     /**
      * Creates new instance of this component
      */
-    public ComboBoxFitsFileTableCell()
-    {
+    public ComboBoxFitsFileTableCell() {
         comboBox = new ComboBox<>();
         comboBox.setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.ENTER)
-            {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
                 commitEdit(comboBox.getValue());
                 requestFocus();
                 getTableView().requestFocus();
-            }
-            else if (keyEvent.getCode() == KeyCode.ESCAPE)
-            {
+            } else if (keyEvent.getCode() == KeyCode.ESCAPE) {
                 comboBox.setValue(getItem());
                 cancelEdit();
             }
         });
         comboBox.focusedProperty().addListener((ov, before, after) -> {
-            if (!after)
-            {
+            if (!after) {
                 commitEdit(comboBox.getValue());
             }
         });
@@ -51,8 +45,7 @@ public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String>
      *
      * @param filesList list of files for combo box
      */
-    public static void setFiles(List<String> filesList)
-    {
+    public static void setFiles(List<String> filesList) {
         files = filesList;
     }
 
@@ -60,16 +53,13 @@ public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String>
      * Handles start of editing
      */
     @Override
-    public void startEdit()
-    {
-        if (!isEmpty())
-        {
+    public void startEdit() {
+        if (!isEmpty()) {
             super.startEdit();
             comboBox.setItems(FXCollections.observableArrayList(files));
             comboBox.getSelectionModel().select(getItem());
             comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue)
-                {
+                if (!newValue) {
                     commitEdit(comboBox.getSelectionModel().getSelectedItem());
                 }
             });
@@ -81,27 +71,20 @@ public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String>
     /**
      * Handles updating item
      *
-     * @param item item to update
+     * @param item  item to update
      * @param empty is item empty
      */
     @Override
-    public void updateItem(String item, boolean empty)
-    {
+    public void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);
-        if (empty)
-        {
+        if (empty) {
             setText(null);
             setGraphic(null);
-        }
-        else
-        {
-            if (isEditing())
-            {
+        } else {
+            if (isEditing()) {
                 setText(null);
                 setGraphic(comboBox);
-            }
-            else
-            {
+            } else {
                 setText(getItem());
                 setGraphic(null);
             }
@@ -114,13 +97,10 @@ public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String>
      * @param item item to commit
      */
     @Override
-    public void commitEdit(String item)
-    {
-        if (!isEditing() && (item == null || !item.equals(getItem())))
-        {
+    public void commitEdit(String item) {
+        if (!isEditing() && (item == null || !item.equals(getItem()))) {
             TableView<FitsCard> table = getTableView();
-            if (table != null)
-            {
+            if (table != null) {
                 TableColumn<FitsCard, String> column = getTableColumn();
                 CellEditEvent<FitsCard, String> event = new CellEditEvent<>(table, new TablePosition<>(table, getIndex(), column), TableColumn.editCommitEvent(), item);
                 Event.fireEvent(column, event);
@@ -133,8 +113,7 @@ public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String>
      * Handles cancel of editing
      */
     @Override
-    public void cancelEdit()
-    {
+    public void cancelEdit() {
         super.cancelEdit();
         setText(getItem());
         setGraphic(null);

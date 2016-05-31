@@ -9,8 +9,7 @@ import java.util.StringJoiner;
  *
  * @author Jan Hlava, 395986
  */
-public enum Command
-{
+public enum Command {
     FILE,
     DIR,
     CANCEL_FILTERS,
@@ -46,10 +45,8 @@ public enum Command
      *
      * @return list about params for command
      */
-    public String paramList()
-    {
-        switch (this)
-        {
+    public String paramList() {
+        switch (this) {
             case FILE:
                 return "file...";
             case DIR:
@@ -102,11 +99,9 @@ public enum Command
      *
      * @return params with description
      */
-    public List<String> paramsInfo()
-    {
+    public List<String> paramsInfo() {
         List<String> result = new ArrayList<>();
-        switch (this)
-        {
+        switch (this) {
             case FILE:
                 result.add("file... - one or more files which you want to process");
                 break;
@@ -219,10 +214,8 @@ public enum Command
      *
      * @return short description of command
      */
-    public String shortDescription()
-    {
-        switch (this)
-        {
+    public String shortDescription() {
+        switch (this) {
             case FILE:
                 return "Loads given files for processing.";
             case DIR:
@@ -275,17 +268,13 @@ public enum Command
      *
      * @return long description of command
      */
-    public String longDescription()
-    {
+    public String longDescription() {
         StringJoiner description = new StringJoiner(System.lineSeparator());
         description.add(shortDescription());
-        if (!paramList().isEmpty())
-        {
+        if (!paramList().isEmpty()) {
             description.add("Params: " + paramList());
             paramsInfo().forEach(description::add);
-        }
-        else
-        {
+        } else {
             description.add("No params.");
         }
         return description.toString();
@@ -296,10 +285,8 @@ public enum Command
      *
      * @return pattern for matching command syntax
      */
-    public String pattern()
-    {
-        switch (this)
-        {
+    public String pattern() {
+        switch (this) {
             case FILE:
                 return "(?:(FILE)((?: (?:(?:[\\S&&[^\"]]+)|(?:\"(?:[\\S &&[^\"]]|\\\\\")*\")))+))";
             case DIR:

@@ -16,8 +16,7 @@ import java.util.List;
  *
  * @author Jan Hlava, 395986
  */
-public class FitsFile
-{
+public class FitsFile {
     public static final int KEYWORD_LENGTH = 8;
     public static final int CARD_LENGTH = 80;
     public static final int BLOCK_LENGTH = 2880;
@@ -34,42 +33,29 @@ public class FitsFile
      * Creates FITS file from given file
      *
      * @param file FITS file
-     * @throws FitsException if file has invalid format
-     * @throws NullPointerException if file is null
+     * @throws FitsException            if file has invalid format
+     * @throws NullPointerException     if file is null
      * @throws IllegalArgumentException if file is not found
-     * */
-    public FitsFile(File file) throws FitsException
-    {
-        if (file == null)
-        {
+     */
+    public FitsFile(File file) throws FitsException {
+        if (file == null) {
             throw new NullPointerException("file is null");
-        }
-        else if (!file.exists())
-        {
+        } else if (!file.exists()) {
             throw new FitsFileException("file does not exists");
-        }
-        else if (!isFitsFile(file))
-        {
+        } else if (!isFitsFile(file)) {
             throw new FitsFileException("file is not FITS file");
         }
         this.file = file;
         HDUs = new ArrayList<>(1);
-        try
-        {
+        try {
             raf = new RandomAccessFile(file, "rw");
-            while (true)
-            {
+            while (true) {
                 HDUs.add(new FitsHeaderDataUnit(raf));
             }
-        }
-        catch (FileNotFoundException exc)
-        {
+        } catch (FileNotFoundException exc) {
             throw new IllegalArgumentException("File not found", exc);
-        }
-        catch (FitsException exc)
-        {
-            if (HDUs.isEmpty())
-            {
+        } catch (FitsException exc) {
+            if (HDUs.isEmpty()) {
                 throw new FitsFileException("No valid FITS file: " + exc.getMessage(), exc);
             }
         }
@@ -81,31 +67,24 @@ public class FitsFile
      * @param file file to test
      * @return true if file is FITS file, otherwise false (test is simple, true does not mean that file is valid FITS file)
      */
-    public static boolean isFitsFile(File file)
-    {
+    public static boolean isFitsFile(File file) {
         byte[] card = new byte[CARD_LENGTH];
         int read_bytes;
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r"))
-        {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             read_bytes = raf.read(card);
             String strCard = new String(card);
-            if (read_bytes != CARD_LENGTH || !strCard.startsWith("SIMPLE  = "))
-            {
+            if (read_bytes != CARD_LENGTH || !strCard.startsWith("SIMPLE  = ")) {
                 return false;
             }
             long headers = 1;
-            while (read_bytes != -1)
-            {
+            while (read_bytes != -1) {
                 raf.seek(headers * BLOCK_LENGTH - CARD_LENGTH);
                 read_bytes = raf.read(card);
                 strCard = new String(card);
-                if (read_bytes != CARD_LENGTH)
-                {
+                if (read_bytes != CARD_LENGTH) {
                     raf.close();
                     return false;
-                }
-                else if (strCard.equals(BLANK_CARD_ENTRY) || strCard.equals(END_CARD_ENTRY))
-                {
+                } else if (strCard.equals(BLANK_CARD_ENTRY) || strCard.equals(END_CARD_ENTRY)) {
                     raf.close();
                     return true;
                 }
@@ -113,9 +92,7 @@ public class FitsFile
             }
             raf.close();
             return false;
-        }
-        catch (IOException exc)
-        {
+        } catch (IOException exc) {
             return false;
         }
     }
@@ -125,8 +102,7 @@ public class FitsFile
      *
      * @return count of HDUs in this FITS file
      */
-    public int getCountHDUs()
-    {
+    public int getCountHDUs() {
         return HDUs.size();
     }
 
@@ -135,8 +111,7 @@ public class FitsFile
      *
      * @return filename of this FITS file, if file is closed, returns empty String
      */
-    public String getFilename()
-    {
+    public String getFilename() {
         return file != null ? file.getName() : "";
     }
 
@@ -147,14 +122,10 @@ public class FitsFile
      * @return HDU with given index
      * @throws IndexOutOfBoundsException if index is out of range (index < 0 || index >= getCountHDUs())
      */
-    public FitsHeaderDataUnit getHDU(int index)
-    {
-        if (HDUs.isEmpty())
-        {
+    public FitsHeaderDataUnit getHDU(int index) {
+        if (HDUs.isEmpty()) {
             return null;
-        }
-        else if (index < 0 || index >= HDUs.size())
-        {
+        } else if (index < 0 || index >= HDUs.size()) {
             throw new IndexOutOfBoundsException("Index is out of range");
         }
         return HDUs.get(index);
@@ -165,11 +136,9 @@ public class FitsFile
      *
      * @return cards from FITS file
      */
-    public List<FitsCard> getCards()
-    {
+    public List<FitsCard> getCards() {
         List<FitsCard> result = new ArrayList<>();
-        for (FitsHeaderDataUnit hdu: HDUs)
-        {
+        for (FitsHeaderDataUnit hdu : HDUs) {
             result.addAll(hdu.getHeader().getCards());
         }
         return result;
@@ -181,11 +150,9 @@ public class FitsFile
      * @param keyword keyword, which should cards contains
      * @return cards with given keyword from FITS file
      */
-    public List<FitsCard> getCardsWithKeyword(String keyword)
-    {
+    public List<FitsCard> getCardsWithKeyword(String keyword) {
         List<FitsCard> result = new ArrayList<>();
-        for (FitsHeaderDataUnit hdu: HDUs)
-        {
+        for (FitsHeaderDataUnit hdu : HDUs) {
             result.addAll(hdu.getHeader().getCardsWithKeyword(keyword));
         }
         return result;
@@ -194,16 +161,11 @@ public class FitsFile
     /**
      * Closes FITS file
      */
-    public void closeFile()
-    {
-        try
-        {
+    public void closeFile() {
+        try {
             raf.close();
-        }
-        catch (IOException ignored)
-        {}
-        finally
-        {
+        } catch (IOException ignored) {
+        } finally {
             file = null;
             raf = null;
             HDUs.clear();
@@ -215,17 +177,12 @@ public class FitsFile
      *
      * @return true if saving was successful, false if saving failed
      */
-    public boolean saveFile()
-    {
-        try
-        {
+    public boolean saveFile() {
+        try {
             Path backupPath;
-            if (file.getParent() != null)
-            {
+            if (file.getParent() != null) {
                 backupPath = Paths.get(file.getParent(), file.getName() + ".old");
-            }
-            else
-            {
+            } else {
                 backupPath = Paths.get(file.getName() + ".old");
             }
             Files.copy(file.toPath(), backupPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES).toFile();
@@ -233,11 +190,9 @@ public class FitsFile
             long beginHDUPosition = 0;
             boolean changedEndHDUPosition = false;
             long EndHDUPositionBeforeSaving;
-            for (FitsHeaderDataUnit hdu : HDUs)
-            {
+            for (FitsHeaderDataUnit hdu : HDUs) {
                 EndHDUPositionBeforeSaving = hdu.getHDUEndPosition();
-                if (!hdu.saveHDU(backup, beginHDUPosition, changedEndHDUPosition))
-                {
+                if (!hdu.saveHDU(backup, beginHDUPosition, changedEndHDUPosition)) {
                     backup.close();
                     return false;
                 }
@@ -247,9 +202,7 @@ public class FitsFile
             backup.close();
             Files.delete(backupPath);
             return true;
-        }
-        catch (IOException exc)
-        {
+        } catch (IOException exc) {
             return false;
         }
     }
@@ -259,11 +212,9 @@ public class FitsFile
      *
      * @return problems blocking to save file
      */
-    public List<String> checkReadyToSave()
-    {
+    public List<String> checkReadyToSave() {
         List<String> problems = new ArrayList<>();
-        for (FitsHeaderDataUnit hdu : HDUs)
-        {
+        for (FitsHeaderDataUnit hdu : HDUs) {
             problems.addAll(hdu.getHeader().checkSaveHeader());
         }
         return problems;
@@ -276,8 +227,7 @@ public class FitsFile
      * @return true if object and this are equaled, otherwise false
      */
     @Override
-    public boolean equals(Object object)
-    {
+    public boolean equals(Object object) {
         return object instanceof FitsFile && getFilename().equals(object);
     }
 
@@ -287,8 +237,7 @@ public class FitsFile
      * @return hash code of this fits file
      */
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return getFilename().hashCode();
     }
 }

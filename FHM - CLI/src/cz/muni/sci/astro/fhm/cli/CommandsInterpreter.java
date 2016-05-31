@@ -16,8 +16,7 @@ import java.util.regex.Pattern;
  *
  * @author Jan Hlava, 395986
  */
-public class CommandsInterpreter
-{
+public class CommandsInterpreter {
     private static final int COMMENT_GROUP = 1;
     private static final Pattern PARAM_SEPARATOR = Pattern.compile("(?: (?:([\\S&&[^\"]]+)|(?:\"((?:\\\\\"|[\\S &&[^\"]])*)\")))");
     private static final Pattern PARAM_VALUE_SEPARATOR = Pattern.compile("(?: (?:(-[a-z]+ [\\S&&[^\"]]+)|(?:(-[a-z]+ \"(?:(?:\\\\\"|[\\S &&[^\"]])*)\"))))");
@@ -43,12 +42,10 @@ public class CommandsInterpreter
      *
      * @param filename filename of file to process
      */
-    public CommandsInterpreter(String filename)
-    {
+    public CommandsInterpreter(String filename) {
         this.filename = filename;
         StringJoiner regex = new StringJoiner("|", "\\A(?:(?:(" + COMMENT_CHAR + ").*)|", ")\\z");
-        for (Command command : Command.values())
-        {
+        for (Command command : Command.values()) {
             regex.add(command.pattern());
         }
         commandValidatorPattern = Pattern.compile(regex.toString(), Pattern.CASE_INSENSITIVE);
@@ -62,58 +59,43 @@ public class CommandsInterpreter
      *
      * @return true if all commands were successfully interpreted, otherwise false
      */
-    public boolean run()
-    {
+    public boolean run() {
         String line;
         int lineNumber = 1;
-        try (BufferedReader scanner = new BufferedReader(new FileReader(filename)))
-        {
-            while ((line = scanner.readLine()) != null)
-            {
-                if (line.trim().isEmpty())
-                {
+        try (BufferedReader scanner = new BufferedReader(new FileReader(filename))) {
+            while ((line = scanner.readLine()) != null) {
+                if (line.trim().isEmpty()) {
                     lineNumber++;
                     continue;
                 }
                 Matcher commandValidator = commandValidatorPattern.matcher(line);
-                if (commandValidator.matches())
-                {
-                    if (commandValidator.group(COMMENT_GROUP) != null)
-                    {
+                if (commandValidator.matches()) {
+                    if (commandValidator.group(COMMENT_GROUP) != null) {
                         lineNumber++;
                         continue;
                     }
                     commands.add(line);
-                }
-                else
-                {
+                } else {
                     int indexEndCommand = line.indexOf(' ');
-                    if (indexEndCommand == -1)
-                    {
+                    if (indexEndCommand == -1) {
                         indexEndCommand = line.length();
                     }
-                    try
-                    {
+                    try {
                         Command command = Command.valueOf(line.substring(0, indexEndCommand).toUpperCase());
-                        printError("On line ", Integer.toString(lineNumber) , " is bad usage of command - ", command.toString(), ". Do not forget to enclose values with spaces into \"\". Right params: ");
+                        printError("On line ", Integer.toString(lineNumber), " is bad usage of command - ", command.toString(), ". Do not forget to enclose values with spaces into \"\". Right params: ");
                         printError(command.toString(), " ", command.paramList());
                         printError("Your command: ", line);
-                    }
-                    catch (IllegalArgumentException exc)
-                    {
+                    } catch (IllegalArgumentException exc) {
                         printError("On line ", Integer.toString(lineNumber), " is unknown command - ", line.substring(0, indexEndCommand), ".");
                     }
                 }
                 lineNumber++;
             }
-        }
-        catch (IOException exc)
-        {
+        } catch (IOException exc) {
             printError("Cannot read file with commands. Details: ", exc.getMessage());
             return false;
         }
-        if (allOK)
-        {
+        if (allOK) {
             processCommands();
         }
         return allOK;
@@ -122,26 +104,21 @@ public class CommandsInterpreter
     /**
      * Processes and executes commands
      */
-    private void processCommands()
-    {
+    private void processCommands() {
         MultipleOperationsRunner operationsRunner = new MultipleOperationsRunner(this::printOK, this::printError);
-        for (String command : commands)
-        {
+        for (String command : commands) {
             printOK("Command: ", command);
             List<String> params = new ArrayList<>();
             boolean modifyParam;
             matcherParam = PARAM_SEPARATOR.matcher(command);
             int commandEndIndex = command.indexOf(' ');
-            if (commandEndIndex == -1)
-            {
+            if (commandEndIndex == -1) {
                 commandEndIndex = command.length();
             }
-            switch (Command.valueOf(command.substring(0, commandEndIndex).toUpperCase()))
-            {
+            switch (Command.valueOf(command.substring(0, commandEndIndex).toUpperCase())) {
                 case FILE:
                     handleOpenedFilesBeforeOpen();
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         openFile(getParam());
                     }
                     break;
@@ -163,8 +140,7 @@ public class CommandsInterpreter
                 case FILTER_KEYWORD:
                     matcherParam.find();
                     modifyParam = getUsedSpecialParam(PARAM_USE_PREVIOUS_FILTER);
-                    do
-                    {
+                    do {
                         params.add(getParam());
                     } while (matcherParam.find());
                     filterKeywords(params, modifyParam);
@@ -187,12 +163,10 @@ public class CommandsInterpreter
                     matcherParam.find();
                     modifyParam = getUsedSpecialParam(PARAM_UPDATE_CARD);
                     params.add(getParam());
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParam());
                     }
-                    for (int i = params.size(); i <= 4; i++)
-                    {
+                    for (int i = params.size(); i <= 4; i++) {
                         params.add(null);
                     }
                     operationsRunner.addCard(filteredFiles, params.get(PARAM_ADD_KEYWORD_INDEX), params.get(PARAM_ADD_RVALUE_INDEX), params.get(PARAM_ADD_IVALUE_INDEX), params.get(PARAM_ADD_COMMENT_INDEX), null, null, modifyParam);
@@ -201,12 +175,10 @@ public class CommandsInterpreter
                     matcherParam.find();
                     modifyParam = getUsedSpecialParam(PARAM_UPDATE_CARD);
                     int index = Integer.parseInt(getParam());
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParam());
                     }
-                    for (int i = params.size(); i <= 4; i++)
-                    {
+                    for (int i = params.size(); i <= 4; i++) {
                         params.add(null);
                     }
                     operationsRunner.addCard(filteredFiles, params.get(PARAM_ADD_KEYWORD_INDEX), params.get(PARAM_ADD_RVALUE_INDEX), params.get(PARAM_ADD_IVALUE_INDEX), params.get(PARAM_ADD_COMMENT_INDEX), index, null, modifyParam);
@@ -215,12 +187,10 @@ public class CommandsInterpreter
                     matcherParam.find();
                     modifyParam = getUsedSpecialParam(PARAM_UPDATE_CARD);
                     String afterCard = getParam();
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParam());
                     }
-                    for (int i = params.size(); i <= 4; i++)
-                    {
+                    for (int i = params.size(); i <= 4; i++) {
                         params.add(null);
                     }
                     operationsRunner.addCard(filteredFiles, params.get(PARAM_ADD_KEYWORD_INDEX), params.get(PARAM_ADD_RVALUE_INDEX), params.get(PARAM_ADD_IVALUE_INDEX), params.get(PARAM_ADD_COMMENT_INDEX), null, afterCard, modifyParam);
@@ -236,29 +206,25 @@ public class CommandsInterpreter
                 case CHANGE_KEYWORD:
                     matcherParam.find();
                     modifyParam = getUsedSpecialParam(PARAM_DELETE_DUPLICATED_CARD);
-                    do
-                    {
+                    do {
                         params.add(getParam());
                     } while (matcherParam.find());
                     operationsRunner.changeCard(filteredFiles, params.get(0), params.get(1), null, null, null, modifyParam);
                     break;
                 case CHANGE_RVALUE:
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParam());
                     }
                     operationsRunner.changeCard(filteredFiles, params.get(0), null, params.get(1), null, null, false);
                     break;
                 case CHANGE_IVALUE:
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParam());
                     }
                     operationsRunner.changeCard(filteredFiles, params.get(0), null, null, params.get(1), null, false);
                     break;
                 case CHANGE_COMMENT:
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParam());
                     }
                     operationsRunner.changeCard(filteredFiles, params.get(0), null, null, null, params.get(1), false);
@@ -275,8 +241,7 @@ public class CommandsInterpreter
                     modifyParam = getUsedSpecialParam(PARAM_UPDATE_CARD);
                     String keyword = getParam();
                     matcherParam.usePattern(PARAM_VALUE_SEPARATOR);
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParamAndValue());
                     }
                     operationsRunner.concatenate(filteredFiles, keyword, params, null, modifyParam);
@@ -285,8 +250,7 @@ public class CommandsInterpreter
                     matcherParam.find();
                     keyword = getParam();
                     matcherParam.usePattern(PARAM_VALUE_SEPARATOR);
-                    while (matcherParam.find())
-                    {
+                    while (matcherParam.find()) {
                         params.add(getParamAndValue());
                     }
                     operationsRunner.shift(filteredFiles, keyword, params);
@@ -317,28 +281,20 @@ public class CommandsInterpreter
      *
      * @param filename filename of file, which should be opened
      */
-    private void openFile(String filename)
-    {
-        if (filename.indexOf(".\\") == 0)
-        {
+    private void openFile(String filename) {
+        if (filename.indexOf(".\\") == 0) {
             filename = filename.substring(2);
         }
-        try
-        {
+        try {
             FitsFile fits = new FitsFile(new File(filename));
-            if (!openedFiles.contains(fits))
-            {
+            if (!openedFiles.contains(fits)) {
                 openedFiles.add(fits);
                 filteredFiles.add(fits);
                 printOK("File \"", filename, "\" was opened.");
-            }
-            else
-            {
+            } else {
                 printError("File \"", filename, "\" is already opened.");
             }
-        }
-        catch (FitsException exc)
-        {
+        } catch (FitsException exc) {
             printError("File \"", filename, "\" cannot be opened. Details: ", exc.getMessage(), ".");
         }
     }
@@ -348,35 +304,23 @@ public class CommandsInterpreter
      *
      * @param directory dir containing desired files
      */
-    private void openDir(String directory)
-    {
+    private void openDir(String directory) {
         printOK("Loading files in directory \"", directory, "\".");
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(directory)))
-        {
-            for(Path file : stream)
-            {
-                if (Files.isRegularFile(file) && FitsFile.isFitsFile(file.toFile()))
-                {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(directory))) {
+            for (Path file : stream) {
+                if (Files.isRegularFile(file) && FitsFile.isFitsFile(file.toFile())) {
                     openFile(file.toString());
-                }
-                else if (!Files.isDirectory(file))
-                {
+                } else if (!Files.isDirectory(file)) {
                     printOK("File \"", file.getFileName().toString(), "\" was skipped, because it is not Fits file.");
                 }
             }
-            if (openedFiles.isEmpty())
-            {
+            if (openedFiles.isEmpty()) {
                 printOK("Directory is empty.");
             }
-        }
-        catch (IOException exc)
-        {
-            if (exc instanceof NoSuchFileException)
-            {
+        } catch (IOException exc) {
+            if (exc instanceof NoSuchFileException) {
                 printError("Loading directory \"", directory, "\" failed because directory was not found.");
-            }
-            else
-            {
+            } else {
                 printError("Loading directory \"", directory, "\" failed. Details: ", exc.getMessage(), ".");
             }
         }
@@ -385,31 +329,23 @@ public class CommandsInterpreter
     /**
      * Filters opened files by given filter
      *
-     * @param filter filter to filter files
+     * @param filter             filter to filter files
      * @param usePreviousFilters if should we used previous files
      */
-    private void filterFilename(String filter, boolean usePreviousFilters)
-    {
+    private void filterFilename(String filter, boolean usePreviousFilters) {
         printOK("Filtering files by filename: ", filter);
         List<FitsFile> files = new ArrayList<>();
-        if (usePreviousFilters)
-        {
+        if (usePreviousFilters) {
             files.addAll(filteredFiles);
-        }
-        else
-        {
+        } else {
             files.addAll(openedFiles);
         }
         filteredFiles.clear();
         PathMatcher filenameMatcher = FileSystems.getDefault().getPathMatcher("glob:" + filter);
-        for (FitsFile file : files)
-        {
-            if (filenameMatcher.matches(Paths.get(file.getFilename())))
-            {
+        for (FitsFile file : files) {
+            if (filenameMatcher.matches(Paths.get(file.getFilename()))) {
                 filteredFiles.add(file);
-            }
-            else
-            {
+            } else {
                 printOK("File \"", file.getFilename(), "\" does not match filter.");
             }
         }
@@ -419,41 +355,31 @@ public class CommandsInterpreter
     /**
      * Filters opened files by containment keywords
      *
-     * @param keywords list of keywords, which should be contained in files
+     * @param keywords           list of keywords, which should be contained in files
      * @param usePreviousFilters if should we used previous files
      */
-    private void filterKeywords(List<String> keywords, boolean usePreviousFilters)
-    {
+    private void filterKeywords(List<String> keywords, boolean usePreviousFilters) {
         StringJoiner stringJoiner = new StringJoiner(", ", "Filtering files by keywords: ", "");
         keywords.forEach(stringJoiner::add);
         printOK(stringJoiner.toString());
         List<FitsFile> files = new ArrayList<>();
-        if (usePreviousFilters)
-        {
+        if (usePreviousFilters) {
             files.addAll(filteredFiles);
-        }
-        else
-        {
+        } else {
             files.addAll(openedFiles);
         }
         filteredFiles.clear();
-        for (FitsFile file : files)
-        {
+        for (FitsFile file : files) {
             boolean containsAll = true;
-            for (String keyword : keywords)
-            {
-                if (file.getCardsWithKeyword(keyword).isEmpty())
-                {
+            for (String keyword : keywords) {
+                if (file.getCardsWithKeyword(keyword).isEmpty()) {
                     containsAll = false;
                     break;
                 }
             }
-            if (containsAll)
-            {
+            if (containsAll) {
                 filteredFiles.add(file);
-            }
-            else
-            {
+            } else {
                 printOK("File \"", file.getFilename(), "\" does not match filter.");
             }
         }
@@ -463,32 +389,24 @@ public class CommandsInterpreter
     /**
      * Filters opened files by containment keywords with given real value
      *
-     * @param keyword keyword which should be contained in files
-     * @param rValue real value which should have given keyword
+     * @param keyword            keyword which should be contained in files
+     * @param rValue             real value which should have given keyword
      * @param usePreviousFilters if should we used previous files
      */
-    private void filterKeywordRValue(String keyword, String rValue, boolean usePreviousFilters)
-    {
+    private void filterKeywordRValue(String keyword, String rValue, boolean usePreviousFilters) {
         printOK("Filtering files by containment of keyword ", keyword, " and real value \"", rValue, "\".");
         List<FitsFile> files = new ArrayList<>();
-        if (usePreviousFilters)
-        {
+        if (usePreviousFilters) {
             files.addAll(filteredFiles);
-        }
-        else
-        {
+        } else {
             files.addAll(openedFiles);
         }
         filteredFiles.clear();
-        for (FitsFile file : files)
-        {
+        for (FitsFile file : files) {
             List<FitsCard> cards = file.getCardsWithKeyword(keyword);
-            if (!cards.isEmpty() && cards.get(0).getRValueString().equals(rValue))
-            {
+            if (!cards.isEmpty() && cards.get(0).getRValueString().equals(rValue)) {
                 filteredFiles.add(file);
-            }
-            else
-            {
+            } else {
                 printOK("File \"", file.getFilename(), "\" does not match filter.");
             }
         }
@@ -498,32 +416,24 @@ public class CommandsInterpreter
     /**
      * Filters opened files by containment keywords with given imaginary value
      *
-     * @param keyword keyword which should be contained in files
-     * @param iValue imaginary value which should have given keyword
+     * @param keyword            keyword which should be contained in files
+     * @param iValue             imaginary value which should have given keyword
      * @param usePreviousFilters if should we used previous files
      */
-    private void filterKeywordIValue(String keyword, String iValue, boolean usePreviousFilters)
-    {
+    private void filterKeywordIValue(String keyword, String iValue, boolean usePreviousFilters) {
         printOK("Filtering files by containment of keyword ", keyword, " and imaginary value \"", iValue, "\".");
         List<FitsFile> files = new ArrayList<>();
-        if (usePreviousFilters)
-        {
+        if (usePreviousFilters) {
             files.addAll(filteredFiles);
-        }
-        else
-        {
+        } else {
             files.addAll(openedFiles);
         }
         filteredFiles.clear();
-        for (FitsFile file : files)
-        {
+        for (FitsFile file : files) {
             List<FitsCard> cards = file.getCardsWithKeyword(keyword);
-            if (!cards.isEmpty() && cards.get(0).getIValueString().equals(iValue))
-            {
+            if (!cards.isEmpty() && cards.get(0).getIValueString().equals(iValue)) {
                 filteredFiles.add(file);
-            }
-            else
-            {
+            } else {
                 printOK("File \"", file.getFilename(), "\" does not match filter.");
             }
         }
@@ -535,14 +445,10 @@ public class CommandsInterpreter
      *
      * @return param from regex operation
      */
-    private String getParam()
-    {
-        if (matcherParam.group(1) != null)
-        {
+    private String getParam() {
+        if (matcherParam.group(1) != null) {
             return matcherParam.group(1);
-        }
-        else
-        {
+        } else {
             return matcherParam.group(2);
         }
     }
@@ -552,14 +458,10 @@ public class CommandsInterpreter
      *
      * @return param with value from regex operation
      */
-    private String getParamAndValue()
-    {
-        if (matcherParam.group(1) != null)
-        {
+    private String getParamAndValue() {
+        if (matcherParam.group(1) != null) {
             return matcherParam.group(1);
-        }
-        else
-        {
+        } else {
             String result = matcherParam.group(2).replaceFirst("\"", "");
             return result.substring(0, result.length() - 1);
         }
@@ -571,15 +473,11 @@ public class CommandsInterpreter
      * @param param which param should be used
      * @return true if is used given param, otherwise false
      */
-    private boolean getUsedSpecialParam(String param)
-    {
-        if (getParam().equals(param))
-        {
+    private boolean getUsedSpecialParam(String param) {
+        if (getParam().equals(param)) {
             matcherParam.find();
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -587,24 +485,16 @@ public class CommandsInterpreter
     /**
      * Saves and closes opened files
      */
-    private void saveAndCloseFiles()
-    {
-        for (FitsFile file : openedFiles)
-        {
+    private void saveAndCloseFiles() {
+        for (FitsFile file : openedFiles) {
             List<String> problems = file.checkReadyToSave();
-            if (problems.isEmpty())
-            {
-                if (!file.saveFile())
-                {
+            if (problems.isEmpty()) {
+                if (!file.saveFile()) {
                     printError("Saving file \"", file.getFilename(), "\" failed.");
-                }
-                else
-                {
+                } else {
                     printOK("File \"", file.getFilename(), "\" was successfully saved.");
                 }
-            }
-            else
-            {
+            } else {
                 printError("Cannot save file \"", file.getFilename(), "\" due errors:");
                 problems.forEach(this::printError);
             }
@@ -617,10 +507,8 @@ public class CommandsInterpreter
     /**
      * Handles opened files before opening new ones
      */
-    private void handleOpenedFilesBeforeOpen()
-    {
-        if (!openedFiles.isEmpty())
-        {
+    private void handleOpenedFilesBeforeOpen() {
+        if (!openedFiles.isEmpty()) {
             printOK("Saving previously opened files before opening new ones.");
             saveAndCloseFiles();
         }
@@ -629,21 +517,18 @@ public class CommandsInterpreter
     /**
      * Prints empty message to output
      */
-    private void printOK()
-    {
+    private void printOK() {
         System.out.println();
     }
 
     /**
      * Prints message to output
-     * 
+     *
      * @param partsMessage parts of message which should be printed
      */
-    private void printOK(String... partsMessage)
-    {
+    private void printOK(String... partsMessage) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (String part : partsMessage)
-        {
+        for (String part : partsMessage) {
             stringBuilder.append(part);
         }
         System.out.println(stringBuilder.toString());
@@ -651,15 +536,13 @@ public class CommandsInterpreter
 
     /**
      * Prints error message to output
-     * 
-     * @param partsMessage  parts of message which should be printed
+     *
+     * @param partsMessage parts of message which should be printed
      */
-    private void printError(String... partsMessage)
-    {
+    private void printError(String... partsMessage) {
         allOK = false;
         StringBuilder stringBuilder = new StringBuilder("ERROR: ");
-        for (String part : partsMessage)
-        {
+        for (String part : partsMessage) {
             stringBuilder.append(part);
         }
         System.out.println(stringBuilder.toString());
@@ -668,16 +551,12 @@ public class CommandsInterpreter
     /**
      * Prints result of filtering
      */
-    private void printFilteringResult()
-    {
-        if (!filteredFiles.isEmpty())
-        {
+    private void printFilteringResult() {
+        if (!filteredFiles.isEmpty()) {
             StringJoiner stringJoiner = new StringJoiner("\", \"", "Result of applying filter: \"", "\"");
             filteredFiles.forEach(file -> stringJoiner.add(file.getFilename()));
             printOK(stringJoiner.toString());
-        }
-        else
-        {
+        } else {
             printOK("Result of applying filter is empty.");
         }
     }

@@ -33,12 +33,16 @@ import java.util.stream.Collectors;
  *
  * @author Jan Hlava, 395986
  */
-public class EditController
-{
+public class EditController {
     private static final String EDIT_TAB = "EditTab.fxml";
     private static final String BLANK_CARD_TAB_NAME = "(BLANK)";
     private static final Label LABEL_NO_CARDS = new Label("No cards");
     private static final Comparator<Tab> TAB_ALPHABET_COMPARATOR = (tab1, tab2) -> tab1.getText().compareTo(tab2.getText());
+    private static final int SUBJECT_COLUMN = 0;
+    private static final int DATATYPE_COLUMN = 1;
+    private static final int RVALUE_COLUMN = 2;
+    private static final int IVALUE_COLUMN = 3;
+    private static final int COMMENT_COLUMN = 4;
     private MainViewController mainViewController;
     private List<String> files;
     private List<FitsFile> fitsFiles;
@@ -47,31 +51,33 @@ public class EditController
     private List<Tab> tabsFiles;
     private List<Tab> tabsCards;
     private List<Tab> tabsCardsToRemove;
-
-    @FXML private TabPane tabPaneDatas;
-    @FXML private ToggleGroup toggleGroupMode;
-    @FXML private Toggle toggleModeFiles;
-    @FXML private Toggle toggleModeKeywords;
-    @FXML private Button buttonAddNew;
-    @FXML private Button buttonDeleteCard;
-    @FXML private Button buttonMoveUp;
-    @FXML private Button buttonMoveDown;
-    @FXML private Button buttonSave;
-    @FXML private Button buttonSaveQuit;
-
-    private static final int SUBJECT_COLUMN = 0;
-    private static final int DATATYPE_COLUMN = 1;
-    private static final int RVALUE_COLUMN = 2;
-    private static final int IVALUE_COLUMN = 3;
-    private static final int COMMENT_COLUMN = 4;
+    @FXML
+    private TabPane tabPaneDatas;
+    @FXML
+    private ToggleGroup toggleGroupMode;
+    @FXML
+    private Toggle toggleModeFiles;
+    @FXML
+    private Toggle toggleModeKeywords;
+    @FXML
+    private Button buttonAddNew;
+    @FXML
+    private Button buttonDeleteCard;
+    @FXML
+    private Button buttonMoveUp;
+    @FXML
+    private Button buttonMoveDown;
+    @FXML
+    private Button buttonSave;
+    @FXML
+    private Button buttonSaveQuit;
 
     /**
      * Sets reference to MainViewController (important for setting content in MainView)
      *
      * @param mainViewController MainViewController controller
      */
-    public void setMainViewController(MainViewController mainViewController)
-    {
+    public void setMainViewController(MainViewController mainViewController) {
         this.mainViewController = mainViewController;
     }
 
@@ -80,16 +86,14 @@ public class EditController
      *
      * @param fitsFiles file list to working with
      */
-    public void setFitsFiles(List<FitsFile> fitsFiles)
-    {
+    public void setFitsFiles(List<FitsFile> fitsFiles) {
         this.fitsFiles = fitsFiles;
     }
 
     /**
      * Prepares this form - load tabs into tabView
      */
-    public void prepareWindow()
-    {
+    public void prepareWindow() {
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_SAVE, false, e -> handleClickButtonSave());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_EXIT, false, e -> quitWithConfirmation());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_TOOLS, MenuBarController.MENU_ITEM_TOOLS_CONCATENATION_MANAGER, false, e -> openConcatenationManagerDialog());
@@ -102,32 +106,26 @@ public class EditController
         tabsCards = new ArrayList<>();
         tabsCardsToRemove = new ArrayList<>();
         tabsFiles = new ArrayList<>();
-        for (FitsFile file : fitsFiles)
-        {
-            try
-            {
+        for (FitsFile file : fitsFiles) {
+            try {
                 files.add(file.getFilename());
                 tabsFiles.add(newEditTab());
-            }
-            catch (IOException exc)
-            {
+            } catch (IOException exc) {
                 errors.add("Error: cannot load file " + file.getFilename() + " with reason " + exc.getMessage());
             }
         }
         ComboBoxFitsFileTableCell.setFiles(files);
         prepareTabPane();
-        if (tabPaneDatas.getTabs().isEmpty())
-        {
+        if (tabPaneDatas.getTabs().isEmpty()) {
             buttonAddNew.setDisable(true);
             buttonSave.setDisable(true);
             buttonSaveQuit.setDisable(true);
             GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_SAVE, true, null);
             GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_TOOLS, MenuBarController.MENU_ITEM_TOOLS_CONCATENATION_MANAGER, true, null);
-            ((RadioButton)toggleModeFiles).setDisable(true);
-            ((RadioButton)toggleModeKeywords).setDisable(true);
+            ((RadioButton) toggleModeFiles).setDisable(true);
+            ((RadioButton) toggleModeKeywords).setDisable(true);
         }
-        if (!errors.isEmpty())
-        {
+        if (!errors.isEmpty()) {
             GUIHelpers.showAlert(AlertType.ERROR, "Error", "Error occurred", String.join("\n", errors));
         }
     }
@@ -135,20 +133,15 @@ public class EditController
     /**
      * Prepares tabs with TableView and fills them with data
      */
-    private void prepareTabPane()
-    {
+    private void prepareTabPane() {
         Tab tab;
-        for (int i = 0; i < tabsFiles.size(); i++)
-        {
+        for (int i = 0; i < tabsFiles.size(); i++) {
             prepareFileTab(tabsFiles.get(i), fitsFiles.get(i));
         }
-        for (String cardKeyword : cardsList.keySet())
-        {
-            try
-            {
+        for (String cardKeyword : cardsList.keySet()) {
+            try {
                 tab = newEditTab();
-            }
-            catch (IOException ignored) // It should not occur - proper creating of new instance
+            } catch (IOException ignored) // It should not occur - proper creating of new instance
             {
                 continue;
             }
@@ -158,14 +151,11 @@ public class EditController
         tabsCards.sort(TAB_ALPHABET_COMPARATOR);
         tabPaneDatas.getTabs().addAll(tabsFiles);
         tabPaneDatas.getSelectionModel().selectedItemProperty().addListener((ov, before, after) -> {
-            if (after == null)
-            {
+            if (after == null) {
                 setDisableDeleteButtons(true);
                 buttonMoveDown.setDisable(true);
                 buttonMoveUp.setDisable(true);
-            }
-            else
-            {
+            } else {
                 TableView<FitsCard> tableView = getTableViewInTab(after);
                 FitsCard card = getSelectedCardInTableView(tableView);
                 setDisableDeleteButtons(card == null);
@@ -177,16 +167,14 @@ public class EditController
     /**
      * Prepares file tab
      *
-     * @param tab tab to be prepared
+     * @param tab  tab to be prepared
      * @param file file for association with given tab
      */
-    private void prepareFileTab(Tab tab, FitsFile file)
-    {
+    private void prepareFileTab(Tab tab, FitsFile file) {
         tab.setText(file.getFilename());
         TableView<FitsCard> tableView = getTableViewInTab(tab);
         EventHandler<CellEditEvent<FitsCard, String>> subjectSetOnEditCommit = t -> {
-            if (t.getOldValue().equals(t.getNewValue()))
-            {
+            if (t.getOldValue().equals(t.getNewValue())) {
                 return;
             }
             Tab tab1 = getTabWithName(tabsCards, t.getOldValue());
@@ -194,18 +182,14 @@ public class EditController
             String keyword = t.getRowValue().getKeywordName();
             TableView<FitsCard> tabTableView = getTableViewInTab(tab1);
             tabTableView.getItems().remove(t.getRowValue());
-            if (tabTableView.getItems().isEmpty())
-            {
+            if (tabTableView.getItems().isEmpty()) {
                 tabsCards.remove(tab1);
             }
             tab1 = getTabWithName(tabsCards, keyword);
-            if (tab1 == null)
-            {
-                try
-                {
+            if (tab1 == null) {
+                try {
                     tab1 = newEditTab();
-                }
-                catch (IOException ignored) // It should not occur - proper creating of new instance
+                } catch (IOException ignored) // It should not occur - proper creating of new instance
                 {
                 }
                 tabsCards.add(tab1);
@@ -221,16 +205,13 @@ public class EditController
         List<FitsCard> cards = file.getHDU(0).getHeader().getCards(); // Read only primary header, need change in case of need read other headers, change needs also method handleClickButtonSave
         tableView.setItems(FXCollections.observableList(cards));
         String cardKeyword;
-        for (FitsCard card : cards)
-        {
+        for (FitsCard card : cards) {
             cardsInFiles.put(card, file);
             cardKeyword = card.getKeywordName();
-            if (cardKeyword.trim().isEmpty())
-            {
+            if (cardKeyword.trim().isEmpty()) {
                 cardKeyword = BLANK_CARD_TAB_NAME;
             }
-            if (!cardsList.containsKey(cardKeyword))
-            {
+            if (!cardsList.containsKey(cardKeyword)) {
                 cardsList.put(cardKeyword, new ArrayList<>());
             }
             cardsList.get(cardKeyword).add(card);
@@ -240,20 +221,17 @@ public class EditController
     /**
      * Prepares card tab
      *
-     * @param tab tab to be prepared
+     * @param tab      tab to be prepared
      * @param cardName card name for association with given tab
      */
-    private void prepareCardTab(Tab tab, String cardName)
-    {
-        if (cardName.trim().isEmpty())
-        {
+    private void prepareCardTab(Tab tab, String cardName) {
+        if (cardName.trim().isEmpty()) {
             cardName = BLANK_CARD_TAB_NAME;
         }
         tab.setText(cardName);
         TableView<FitsCard> tableView = getTableViewInTab(tab);
         EventHandler<CellEditEvent<FitsCard, String>> subjectSetOnEditCommit = t -> {
-            if (t.getOldValue().equals(t.getNewValue()))
-            {
+            if (t.getOldValue().equals(t.getNewValue())) {
                 return;
             }
             TableView<FitsCard> tabTableView = getTableViewInTab(getTabWithName(tabsFiles, t.getNewValue()));
@@ -271,31 +249,25 @@ public class EditController
     /**
      * Prepares table view
      *
-     * @param tableView what should be prepared
-     * @param subject name of subject column
-     * @param subjectCellFactory cell factory for subject column
+     * @param tableView               what should be prepared
+     * @param subject                 name of subject column
+     * @param subjectCellFactory      cell factory for subject column
      * @param subjectCellValueFactory cell value factory for subject column
-     * @param subjectSetOnEditCommit action on edit commit on subject column
+     * @param subjectSetOnEditCommit  action on edit commit on subject column
      */
     @SuppressWarnings("unchecked")
-    private void prepareTabView(TableView<FitsCard> tableView, boolean sortableColumns, String subject, Callback<CellDataFeatures<FitsCard, String>, ObservableValue<String>> subjectCellValueFactory, Callback<TableColumn<FitsCard, String>, TableCell<FitsCard, String>> subjectCellFactory, EventHandler<CellEditEvent<FitsCard, String>> subjectSetOnEditCommit)
-    {
+    private void prepareTabView(TableView<FitsCard> tableView, boolean sortableColumns, String subject, Callback<CellDataFeatures<FitsCard, String>, ObservableValue<String>> subjectCellValueFactory, Callback<TableColumn<FitsCard, String>, TableCell<FitsCard, String>> subjectCellFactory, EventHandler<CellEditEvent<FitsCard, String>> subjectSetOnEditCommit) {
         tableView.setPlaceholder(LABEL_NO_CARDS);
         tableView.getSelectionModel().selectedIndexProperty().addListener((ov, before, after) -> {
-            if (after.intValue() == -1)
-            {
+            if (after.intValue() == -1) {
                 setDisableDeleteButtons(true);
                 buttonMoveDown.setDisable(true);
                 buttonMoveUp.setDisable(true);
-            }
-            else
-            {
-                if (before.intValue() == -1)
-                {
+            } else {
+                if (before.intValue() == -1) {
                     setDisableDeleteButtons(false);
                 }
-                if (getSelectedTableView() == tableView)
-                {
+                if (getSelectedTableView() == tableView) {
                     checkMoveButtons(after.intValue(), tableView.getItems().size());
                 }
             }
@@ -370,23 +342,20 @@ public class EditController
      *
      * @return true if save does not failed, otherwise false
      */
-    @FXML private boolean handleClickButtonSave()
-    {
+    @FXML
+    private boolean handleClickButtonSave() {
         List<String> problems;
-        for (FitsFile file : fitsFiles)
-        {
+        for (FitsFile file : fitsFiles) {
             file.getHDU(0).getHeader().setCards(getTableViewInTab(getTabWithName(tabsFiles, file.getFilename())).getItems());
             problems = file.getHDU(0).getHeader().checkSaveHeader();
-            if (!problems.isEmpty())
-            {
+            if (!problems.isEmpty()) {
                 GUIHelpers.showAlert(AlertType.ERROR, "Saving cards", "Nothing was saved. Saving file " + file.getFilename() + " fails with error: ", String.join("\n", problems));
                 return false;
             }
         }
         problems = new ArrayList<>();
         problems.addAll(fitsFiles.stream().filter(file -> !file.saveFile()).map(FitsFile::getFilename).collect(Collectors.toList()));
-        if (!problems.isEmpty())
-        {
+        if (!problems.isEmpty()) {
             GUIHelpers.showAlert(AlertType.ERROR, "Saving cards", "Saving these files failed: ", String.join(", ", problems));
             return false;
         }
@@ -399,29 +368,23 @@ public class EditController
      *
      * @return new card
      */
-    @FXML private FitsCard handleClickButtonNewCard()
-    {
+    @FXML
+    private FitsCard handleClickButtonNewCard() {
         TableView<FitsCard> tableView = getSelectedTableView();
         int selectedIndex = getSelectedIndexInTableView(tableView);
         FitsCard newCard;
         Tab newTab;
-        if (selectedIndex == -1)
-        {
+        if (selectedIndex == -1) {
             selectedIndex = Math.max(tableView.getItems().size() - 1, 0);
         }
-        try
-        {
+        try {
             newCard = new FitsCard();
             tableView.getItems().add(selectedIndex, newCard);
-            if (toggleGroupMode.getSelectedToggle() == toggleModeFiles)
-            {
+            if (toggleGroupMode.getSelectedToggle() == toggleModeFiles) {
                 cardsInFiles.put(newCard, fitsFiles.get(tabPaneDatas.getSelectionModel().getSelectedIndex()));
-                if (cardsList.containsKey(BLANK_CARD_TAB_NAME))
-                {
+                if (cardsList.containsKey(BLANK_CARD_TAB_NAME)) {
                     getTableViewInTab(getTabWithName(tabsCards, BLANK_CARD_TAB_NAME)).getItems().add(newCard);
-                }
-                else
-                {
+                } else {
                     cardsList.put(BLANK_CARD_TAB_NAME, new ArrayList<>());
                     newTab = newEditTab();
                     tabsCards.add(newTab);
@@ -429,16 +392,11 @@ public class EditController
                     prepareCardTab(newTab, BLANK_CARD_TAB_NAME);
                     tabsCards.sort(TAB_ALPHABET_COMPARATOR);
                 }
-            }
-            else
-            {
+            } else {
                 String keyword = getSelectedTab(tabPaneDatas).getText();
-                if (!keyword.equals(BLANK_CARD_TAB_NAME))
-                {
+                if (!keyword.equals(BLANK_CARD_TAB_NAME)) {
                     newCard.setKeyword(keyword);
-                }
-                else
-                {
+                } else {
                     newCard.setKeyword("");
                 }
                 ObservableList<FitsCard> fileCards = getTableViewInTab(getTabWithName(tabsFiles, fitsFiles.get(0).getFilename())).getItems();
@@ -447,8 +405,7 @@ public class EditController
             }
             tableView.scrollTo(newCard);
             return newCard;
-        }
-        catch (IOException ignored) // Creating new edit tab should not fail, so ignore this exception
+        } catch (IOException ignored) // Creating new edit tab should not fail, so ignore this exception
         {
             return null;
         }
@@ -457,31 +414,25 @@ public class EditController
     /**
      * Handles click on delete card - deletes selected card
      */
-    @FXML private void handleClickButtonDeleteCard()
-    {
+    @FXML
+    private void handleClickButtonDeleteCard() {
         TableView<FitsCard> tableView = getSelectedTableView();
         int selectedIndex = getSelectedIndexInTableView(tableView);
-        if (selectedIndex == -1)
-        {
+        if (selectedIndex == -1) {
             return;
         }
         FitsCard removedCard = getSelectedCardInTableView(tableView);
         tableView.getItems().remove(removedCard);
         Tab tab;
-        if (toggleGroupMode.getSelectedToggle() == toggleModeFiles)
-        {
+        if (toggleGroupMode.getSelectedToggle() == toggleModeFiles) {
             tab = getTabWithName(tabsCards, removedCard.getKeywordName());
             tableView = getTableViewInTab(tab);
             tableView.getItems().remove(removedCard);
-            if (tableView.getItems().isEmpty())
-            {
+            if (tableView.getItems().isEmpty()) {
                 tabsCards.remove(tab);
             }
-        }
-        else
-        {
-            if (tableView.getItems().isEmpty())
-            {
+        } else {
+            if (tableView.getItems().isEmpty()) {
                 tabsCardsToRemove.add(getSelectedTab(tabPaneDatas));
             }
             tab = getTabWithName(tabsFiles, cardsInFiles.get(removedCard).getFilename());
@@ -497,16 +448,16 @@ public class EditController
     /**
      * Handles click on button move up and moves selected card up
      */
-    @FXML private void handleClickButtonMoveUp()
-    {
+    @FXML
+    private void handleClickButtonMoveUp() {
         moveSelectedCardInTableView(-1);
     }
 
     /**
      * Handles click on button move down and moves selected card down
      */
-    @FXML private void handleClickButtonMoveDown()
-    {
+    @FXML
+    private void handleClickButtonMoveDown() {
         moveSelectedCardInTableView(1);
     }
 
@@ -514,10 +465,9 @@ public class EditController
      * Checks move buttons and set their disable state according indexes
      *
      * @param selectedIndex selectedIndex in table view
-     * @param items count of items in table view
+     * @param items         count of items in table view
      */
-    private void checkMoveButtons(int selectedIndex, int items)
-    {
+    private void checkMoveButtons(int selectedIndex, int items) {
         GUIHelpers.checkMoveButtons(selectedIndex, items, buttonMoveUp, buttonMoveDown);
     }
 
@@ -526,8 +476,7 @@ public class EditController
      *
      * @return active table view
      *///
-    private TableView<FitsCard> getSelectedTableView()
-    {
+    private TableView<FitsCard> getSelectedTableView() {
         return getTableViewInTab(getSelectedTab(tabPaneDatas));
     }
 
@@ -536,8 +485,7 @@ public class EditController
      *
      * @return selected index in active table view, -1 means no selected row in table view
      */
-    private int getSelectedIndexInTableView(TableView<FitsCard> tableView)
-    {
+    private int getSelectedIndexInTableView(TableView<FitsCard> tableView) {
         return tableView.getSelectionModel().getSelectedIndex();
     }
 
@@ -546,8 +494,7 @@ public class EditController
      *
      * @return selected item in active table view, null means no selected row in table view
      */
-    private FitsCard getSelectedCardInTableView(TableView<FitsCard> tableView)
-    {
+    private FitsCard getSelectedCardInTableView(TableView<FitsCard> tableView) {
         return tableView.getSelectionModel().getSelectedItem();
     }
 
@@ -557,8 +504,7 @@ public class EditController
      * @param tabPane tab pane for searching selected tab
      * @return selected tab
      */
-    private Tab getSelectedTab(TabPane tabPane)
-    {
+    private Tab getSelectedTab(TabPane tabPane) {
         return tabPane.getSelectionModel().getSelectedItem();
     }
 
@@ -569,16 +515,12 @@ public class EditController
      * @param name name of tab, which I want to find
      * @return found tab, in case of no tab with given name is in list of tabs returns null
      */
-    private Tab getTabWithName(List<Tab> tabs, String name)
-    {
-        if (name.trim().isEmpty())
-        {
+    private Tab getTabWithName(List<Tab> tabs, String name) {
+        if (name.trim().isEmpty()) {
             name = BLANK_CARD_TAB_NAME;
         }
-        for (Tab tab : tabs)
-        {
-            if (tab.getText().equals(name))
-            {
+        for (Tab tab : tabs) {
+            if (tab.getText().equals(name)) {
                 return tab;
             }
         }
@@ -592,18 +534,16 @@ public class EditController
      * @return table view from given tab
      */
     @SuppressWarnings("unchecked")
-    private TableView<FitsCard> getTableViewInTab(Tab tab)
-    {
+    private TableView<FitsCard> getTableViewInTab(Tab tab) {
         return (TableView<FitsCard>) tab.getContent();
     }
 
     /**
      * Handles click on button Quit and save - tries to save content, if there are some problems, shows them, in case of no problems quits
      */
-    @FXML private void handleClickButtonQuitSave()
-    {
-        if (handleClickButtonSave())
-        {
+    @FXML
+    private void handleClickButtonQuitSave() {
+        if (handleClickButtonSave()) {
             quit();
         }
     }
@@ -611,37 +551,30 @@ public class EditController
     /**
      * Handles click on toggle files mode and change tab panes according to selected mode
      */
-    @FXML private void handleClickToggleModeFiles()
-    {
+    @FXML
+    private void handleClickToggleModeFiles() {
         FitsCard selectedCard = getSelectedCardInTableView(getSelectedTableView());
         Tab selectTab = null;
         tabPaneDatas.getTabs().clear();
-        if (toggleGroupMode.getSelectedToggle() == toggleModeFiles)
-        {
+        if (toggleGroupMode.getSelectedToggle() == toggleModeFiles) {
             tabPaneDatas.getTabs().addAll(tabsFiles);
             tabsCards.removeAll(tabsCardsToRemove);
             tabsCardsToRemove.clear();
-            if (selectedCard != null)
-            {
+            if (selectedCard != null) {
                 selectTab = getTabWithName(tabsFiles, cardsInFiles.get(selectedCard).getFilename());
             }
-        }
-        else
-        {
+        } else {
             tabPaneDatas.getTabs().addAll(tabsCards);
-            if (selectedCard != null)
-            {
+            if (selectedCard != null) {
                 selectTab = getTabWithName(tabsCards, selectedCard.getKeywordName());
             }
         }
-        if (selectTab != null)
-        {
+        if (selectTab != null) {
             tabPaneDatas.getSelectionModel().select(selectTab);
             getTableViewInTab(selectTab).getSelectionModel().select(selectedCard);
             getTableViewInTab(selectTab).scrollTo(selectedCard);
         }
-        for (Tab tab : tabPaneDatas.getTabs())
-        {
+        for (Tab tab : tabPaneDatas.getTabs()) {
             refreshContentTableView(getTableViewInTab(tab).getColumns().get(0));
         }
     }
@@ -651,8 +584,7 @@ public class EditController
      *
      * @param disable should be buttons disabled?
      */
-    private void setDisableDeleteButtons(boolean disable)
-    {
+    private void setDisableDeleteButtons(boolean disable) {
         buttonDeleteCard.setDisable(disable);
     }
 
@@ -661,8 +593,7 @@ public class EditController
      *
      * @param offset how many lines card should be moved
      */
-    private void moveSelectedCardInTableView(int offset)
-    {
+    private void moveSelectedCardInTableView(int offset) {
         TableView<FitsCard> tableView = getSelectedTableView();
         int selectedIndex = getSelectedIndexInTableView(tableView);
         FitsCard movedCard = tableView.getItems().set(selectedIndex + offset, getSelectedCardInTableView(tableView));
@@ -674,8 +605,7 @@ public class EditController
      *
      * @param column column in table view that you want to refresh
      */
-    private void refreshContentTableView(TableColumn<FitsCard, ?> column)
-    {
+    private void refreshContentTableView(TableColumn<FitsCard, ?> column) {
         column.setVisible(false);
         column.setVisible(true);
     }
@@ -686,8 +616,7 @@ public class EditController
      * @return edit tab instance
      * @throws IOException in case of failure of loading new tab, but it should not occur
      */
-    private Tab newEditTab() throws IOException
-    {
+    private Tab newEditTab() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(EDIT_TAB)); // New tab needs new instance of FXMLLoader
         return fxmlLoader.load();
     }
@@ -695,8 +624,7 @@ public class EditController
     /**
      * Close entire app
      */
-    private void quit()
-    {
+    private void quit() {
         fitsFiles.forEach(FitsFile::closeFile);
         Platform.exit();
         System.exit(0);
@@ -705,11 +633,10 @@ public class EditController
     /**
      * Shows confirmation of exit and then maybe closes entire app
      */
-    @FXML private void quitWithConfirmation()
-    {
+    @FXML
+    private void quitWithConfirmation() {
         GUIHelpers.showAlert(AlertType.CONFIRMATION, "Confirm exit", "Exiting application", "Are you sure you want to exit application? You lost all unsaved changes.").ifPresent(response -> {
-            if (response == ButtonType.OK)
-            {
+            if (response == ButtonType.OK) {
                 quit();
             }
         });
@@ -718,10 +645,8 @@ public class EditController
     /**
      * Opens dialog for changing date time values
      */
-    private void openChangeDateTimeValueDialog()
-    {
-        try
-        {
+    private void openChangeDateTimeValueDialog() {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ChangeTimeValue.fxml"));
             VBox vBox = loader.load();
             Stage dateTimeChanger = new Stage();
@@ -740,18 +665,15 @@ public class EditController
             controller.prepareWindow(card, dateTimeChanger);
             dateTimeChanger.showAndWait();
             refreshContentTableView(tableView.getColumns().get(RVALUE_COLUMN));
+        } catch (IOException ignored) {
         }
-        catch (IOException ignored)
-        {}
     }
 
     /**
      * Handles click on menu item Concatenation manager - opens the manager
      */
-    private void openConcatenationManagerDialog()
-    {
-        try
-        {
+    private void openConcatenationManagerDialog() {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ConcatenationManager.fxml"));
             VBox vBox = loader.load();
             Stage concatenationManager = new Stage();
@@ -767,11 +689,9 @@ public class EditController
             controller.prepareWindow(tableView.getItems(), cardsInFiles, getSelectedCardInTableView(tableView), toggleGroupMode.getSelectedToggle() != toggleModeFiles, concatenationManager);
             concatenationManager.showAndWait();
             Pair<FitsCard, String> result = controller.getResult();
-            if (result != null)
-            {
+            if (result != null) {
                 FitsCard card = result.getKey();
-                if (card == null)
-                {
+                if (card == null) {
                     card = handleClickButtonNewCard();
                 }
                 tableView.getSelectionModel().select(card);
@@ -779,16 +699,14 @@ public class EditController
                 card.setRValue(result.getValue());
                 refreshContentTableView(tableView.getColumns().get(RVALUE_COLUMN));
             }
+        } catch (IOException ignored) {
         }
-        catch (IOException ignored)
-        {}
     }
 
     /**
      * Switches mode to multiple operation
      */
-    private void switchMode()
-    {
+    private void switchMode() {
         MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("MultipleEdit.fxml");
         multipleEditController.setMainViewController(mainViewController);
         multipleEditController.setFitsFiles(fitsFiles);
@@ -799,8 +717,7 @@ public class EditController
     /**
      * Deactivates menu items for single operation mode
      */
-    private void deactivateMenuItems()
-    {
+    private void deactivateMenuItems() {
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_TOOLS, MenuBarController.MENU_ITEM_TOOLS_CONCATENATION_MANAGER, true, null);
     }
 }

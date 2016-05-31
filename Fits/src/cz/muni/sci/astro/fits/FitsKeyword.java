@@ -9,8 +9,7 @@ import java.util.List;
  *
  * @author Jan Hlava, 395986
  */
-public enum FitsKeyword
-{
+public enum FitsKeyword {
     SIMPLE("SIMPLE"),
     BITPIX("BITPIX"),
     NAXIS("NAXIS"),
@@ -101,9 +100,70 @@ public enum FitsKeyword
      *
      * @param name name of keyword
      */
-    FitsKeyword(String name)
-    {
+    FitsKeyword(String name) {
         this.name = name;
+    }
+
+    /**
+     * Returns collection of mandatory keywords for given image type
+     *
+     * @param imageType image type for which we need collection of mandatory keywords
+     * @return collection of mandatory keywords for given image type
+     */
+    public static List<FitsKeyword> getImageTypeMandatory(FitsImageType imageType) {
+        List<FitsKeyword> keywords = new ArrayList<>();
+        switch (imageType) {
+            case UNKNOWN:
+                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, IMAGETYP, END);
+                break;
+            case LIGHT_FRAME:
+                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME, FILTER, OBJECT, CATNAME, WDEC, WRA, WEPOCH, DEC, RA, EPOCH, EQUINOX, RADECSYS, CD1_1, CD1_2, CD2_1, CD2_2, SECPIX, WCSSEP, WCSRFCAT, WCSIMCAT, WCSMATCH, WCSNREF, WCSTOL, IMWCS);
+                break;
+            case FLAT_FIELD:
+                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME, FILTER);
+                break;
+            case DARK_FRAME:
+                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME);
+                break;
+            case BIAS_FRAME:
+                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME);
+                break;
+            case OBJECT:
+                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, END);
+                break;
+        }
+        return keywords;
+    }
+
+    /**
+     * Returns collection of mandatory n type keywords for given image type
+     *
+     * @param imageType image type for which we need collection of mandatory n type keywords
+     * @return collection of mandatory n type keywords for given image type
+     */
+    public static List<FitsKeyword> getImageTypeNMandatory(FitsImageType imageType) {
+        List<FitsKeyword> keywords = new ArrayList<>();
+        switch (imageType) {
+            case UNKNOWN:
+                keywords.add(NAXISn);
+                break;
+            case OBJECT:
+                keywords.add(NAXISn);
+                break;
+            case LIGHT_FRAME:
+                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, PIXSCALn, BINNINGn, CRPIXn, CRVALn, CTYPEn, CDELTn, CROTAn);
+                break;
+            case FLAT_FIELD:
+                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, PIXSCALn, BINNINGn);
+                break;
+            case DARK_FRAME:
+                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, BINNINGn);
+                break;
+            case BIAS_FRAME:
+                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, BINNINGn);
+                break;
+        }
+        return keywords;
     }
 
     /**
@@ -112,8 +172,7 @@ public enum FitsKeyword
      * @return string representation of enum
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 
@@ -122,10 +181,8 @@ public enum FitsKeyword
      *
      * @return data type of this keyword
      */
-    public FitsKeywordsDataType getType()
-    {
-        switch (this)
-        {
+    public FitsKeywordsDataType getType() {
+        switch (this) {
             case SIMPLE:
             case EXTEND:
             case CCDABG:
@@ -223,10 +280,8 @@ public enum FitsKeyword
      *
      * @return true if keyword is n type, otherwise false
      */
-    public boolean isNKeyword()
-    {
-        switch (this)
-        {
+    public boolean isNKeyword() {
+        switch (this) {
             case NAXISn:
             case CCDSIZEn:
             case PIXSIZEn:
@@ -249,10 +304,8 @@ public enum FitsKeyword
      *
      * @return true if must have n param as keyword NAXIS, otherwise false
      */
-    public boolean isNAsNAXIS()
-    {
-        switch (this)
-        {
+    public boolean isNAsNAXIS() {
+        switch (this) {
             case NAXISn:
             case CCDSIZEn:
             case PIXSIZEn:
@@ -270,80 +323,12 @@ public enum FitsKeyword
     }
 
     /**
-     * Returns collection of mandatory keywords for given image type
-     *
-     * @param imageType image type for which we need collection of mandatory keywords
-     * @return collection of mandatory keywords for given image type
-     */
-    public static List<FitsKeyword> getImageTypeMandatory(FitsImageType imageType)
-    {
-        List<FitsKeyword> keywords = new ArrayList<>();
-        switch (imageType)
-        {
-            case UNKNOWN:
-                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, IMAGETYP, END);
-                break;
-            case LIGHT_FRAME:
-                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME, FILTER, OBJECT, CATNAME, WDEC, WRA, WEPOCH, DEC, RA, EPOCH, EQUINOX, RADECSYS, CD1_1, CD1_2, CD2_1, CD2_2, SECPIX, WCSSEP, WCSRFCAT, WCSIMCAT, WCSMATCH, WCSNREF, WCSTOL, IMWCS);
-                break;
-            case FLAT_FIELD:
-                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME, FILTER);
-                break;
-            case DARK_FRAME:
-                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME);
-                break;
-            case BIAS_FRAME:
-                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME);
-                break;
-            case OBJECT:
-                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, END);
-                break;
-        }
-        return keywords;
-    }
-
-    /**
-     * Returns collection of mandatory n type keywords for given image type
-     *
-     * @param imageType image type for which we need collection of mandatory n type keywords
-     * @return collection of mandatory n type keywords for given image type
-     */
-    public static List<FitsKeyword> getImageTypeNMandatory(FitsImageType imageType)
-    {
-        List<FitsKeyword> keywords = new ArrayList<>();
-        switch (imageType)
-        {
-            case UNKNOWN:
-                keywords.add(NAXISn);
-                break;
-            case OBJECT:
-                keywords.add(NAXISn);
-                break;
-            case LIGHT_FRAME:
-                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, PIXSCALn, BINNINGn, CRPIXn, CRVALn, CTYPEn, CDELTn, CROTAn);
-                break;
-            case FLAT_FIELD:
-                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, PIXSCALn, BINNINGn);
-                break;
-            case DARK_FRAME:
-                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, BINNINGn);
-                break;
-            case BIAS_FRAME:
-                Collections.addAll(keywords, NAXISn, CCDSIZEn, PIXSIZEn, BINNINGn);
-                break;
-        }
-        return keywords;
-    }
-
-    /**
      * Returns true if this keyword should be unique in header
      *
      * @return true if this keyword should be unique in header, otherwise no
      */
-    public boolean isUniqueHeaderKeyword()
-    {
-        switch (this)
-        {
+    public boolean isUniqueHeaderKeyword() {
+        switch (this) {
             case EMPTY:
             case COMMENT:
             case HISTORY:
@@ -359,10 +344,8 @@ public enum FitsKeyword
      *
      * @return true if this keyword has physical unit, otherwise false
      */
-    public boolean isUnitKeyword()
-    {
-        switch (this)
-        {
+    public boolean isUnitKeyword() {
+        switch (this) {
             case PEDESTAL:
             case DATAMIN:
             case DATAMAX:
