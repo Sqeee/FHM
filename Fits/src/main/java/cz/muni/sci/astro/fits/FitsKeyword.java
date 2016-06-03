@@ -114,7 +114,7 @@ public enum FitsKeyword {
         List<FitsKeyword> keywords = new ArrayList<>();
         switch (imageType) {
             case UNKNOWN:
-                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, IMAGETYP, END);
+                Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, END); // IMAGETYP was removed because it can prevent from saving file where imagetyp is missing and no change with this keyword was made, it can be little confusing
                 break;
             case LIGHT_FRAME:
                 Collections.addAll(keywords, SIMPLE, BITPIX, NAXIS, EXTEND, BSCALE, BZERO, BUNIT, SITENAME, SITEALT, SITELAT, SITELONG, TIMEZONE, TELESCOP, TELFOCUS, TELDIAM, TELFRAT, INSTRUME, CCDABG, CCDEGAIN, CCDRNOIS, CCDRTIME, OWNER, TIMESYS, DATE_OBS, IMAGETYP, EXPTIME, FILTER, OBJECT, CATNAME, WDEC, WRA, WEPOCH, DEC, RA, EPOCH, EQUINOX, RADECSYS, CD1_1, CD1_2, CD2_1, CD2_2, SECPIX, WCSSEP, WCSRFCAT, WCSIMCAT, WCSMATCH, WCSNREF, WCSTOL, IMWCS);
