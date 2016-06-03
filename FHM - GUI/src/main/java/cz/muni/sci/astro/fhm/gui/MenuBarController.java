@@ -52,7 +52,7 @@ public class MenuBarController {
     @FXML
     private void handleClickMenuItemUTC_JD_Converter() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Converter.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Converter.fxml"));
             VBox vBox = loader.load();
             Stage converter = new Stage();
             converter.setTitle("Converter");

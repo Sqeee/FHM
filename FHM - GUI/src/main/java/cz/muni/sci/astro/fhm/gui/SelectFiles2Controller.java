@@ -96,7 +96,7 @@ public class SelectFiles2Controller {
      */
     @FXML
     private void handleClickButtonContinue() {
-        MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("MultipleEdit.fxml");
+        MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("fxml/MultipleEdit.fxml");
         multipleEditController.setMainViewController(mainViewController);
         multipleEditController.setDir(dir);
         multipleEditController.setFiles(listViewSelectedFiles.getSelectionModel().getSelectedItems());

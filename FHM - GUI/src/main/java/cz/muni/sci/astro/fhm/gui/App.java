@@ -29,7 +29,7 @@ public class App extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("fxml/MainView.fxml"));
         primaryStage.setMinHeight(560);
         primaryStage.setMinWidth(750);
         primaryStage.setTitle("Fits Header Modifier");

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author Jan Hlava, 395986
  */
 public class EditController {
-    private static final String EDIT_TAB = "EditTab.fxml";
+    private static final String EDIT_TAB = "fxml/EditTab.fxml";
     private static final String BLANK_CARD_TAB_NAME = "(BLANK)";
     private static final Label LABEL_NO_CARDS = new Label("No cards");
     private static final Comparator<Tab> TAB_ALPHABET_COMPARATOR = (tab1, tab2) -> tab1.getText().compareTo(tab2.getText());
@@ -647,7 +647,7 @@ public class EditController {
      */
     private void openChangeDateTimeValueDialog() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("ChangeTimeValue.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/ChangeTimeValue.fxml"));
             VBox vBox = loader.load();
             Stage dateTimeChanger = new Stage();
             TableView<FitsCard> tableView = getSelectedTableView();
@@ -674,7 +674,7 @@ public class EditController {
      */
     private void openConcatenationManagerDialog() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("ConcatenationManager.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/ConcatenationManager.fxml"));
             VBox vBox = loader.load();
             Stage concatenationManager = new Stage();
             TableView<FitsCard> tableView = getSelectedTableView();
@@ -707,7 +707,7 @@ public class EditController {
      * Switches mode to multiple operation
      */
     private void switchMode() {
-        MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("MultipleEdit.fxml");
+        MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("fxml/MultipleEdit.fxml");
         multipleEditController.setMainViewController(mainViewController);
         multipleEditController.setFitsFiles(fitsFiles);
         deactivateMenuItems();

@@ -824,7 +824,7 @@ public class MultipleEditController {
             GUIHelpers.showAlert(AlertType.INFORMATION, "Swith to single operation mode", "Switching cannot be done", "Single operation mode is not for too much open files, it was intended only for few files, where you want exact editing and WYSIWYG editor.");
             return;
         }
-        EditController editController = (EditController) mainViewController.setContent("Edit.fxml");
+        EditController editController = (EditController) mainViewController.setContent("fxml/Edit.fxml");
         editController.setMainViewController(mainViewController);
         editController.setFitsFiles(fitsFiles);
         closeLogs();

@@ -29,11 +29,11 @@ public class GUIHelpers {
 
     static {
         icons = new ArrayList<>();
-        icons.add(new Image(App.class.getResourceAsStream("icon128x128.png")));
-        icons.add(new Image(App.class.getResourceAsStream("icon64x64.png")));
-        icons.add(new Image(App.class.getResourceAsStream("icon48x48.png")));
-        icons.add(new Image(App.class.getResourceAsStream("icon32x32.png")));
-        icons.add(new Image(App.class.getResourceAsStream("icon16x16.png")));
+        icons.add(new Image(App.class.getResourceAsStream("icons/icon128x128.png")));
+        icons.add(new Image(App.class.getResourceAsStream("icons/icon64x64.png")));
+        icons.add(new Image(App.class.getResourceAsStream("icons/icon48x48.png")));
+        icons.add(new Image(App.class.getResourceAsStream("icons/icon32x32.png")));
+        icons.add(new Image(App.class.getResourceAsStream("icons/icon16x16.png")));
     }
 
     /**
