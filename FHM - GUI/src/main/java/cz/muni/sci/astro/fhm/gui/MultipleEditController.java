@@ -1,6 +1,5 @@
 package cz.muni.sci.astro.fhm.gui;
 
-import cz.muni.sci.astro.fhm.core.Helpers;
 import cz.muni.sci.astro.fhm.core.MultipleOperationsRunner;
 import cz.muni.sci.astro.fits.FitsCardDateValue;
 import cz.muni.sci.astro.fits.FitsCardDateValueUnknownFormatException;
@@ -8,6 +7,7 @@ import cz.muni.sci.astro.fits.FitsException;
 import cz.muni.sci.astro.fits.FitsFile;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.*;
@@ -291,6 +291,38 @@ public class MultipleEditController {
                 keyEvent.consume();
             }
         });
+        EventHandler<KeyEvent> ignoreEnter = keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        };
+        textFieldAddCardKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldAddCardRValue.setOnKeyPressed(ignoreEnter);
+        textFieldAddCardIValue.setOnKeyPressed(ignoreEnter);
+        textFieldAddCardComment.setOnKeyPressed(ignoreEnter);
+        textFieldAddCardIndex.setOnKeyPressed(ignoreEnter);
+        textFieldAddCardAfterKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldRemoveCardKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldRemoveCardIndex.setOnKeyPressed(ignoreEnter);
+        textFieldChangeCardKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldChangeCardNewKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldChangeCardRValue.setOnKeyPressed(ignoreEnter);
+        textFieldChangeCardIValue.setOnKeyPressed(ignoreEnter);
+        textFieldChangeCardComment.setOnKeyPressed(ignoreEnter);
+        textFieldChangeCardIndex.setOnKeyPressed(ignoreEnter);
+        textFieldConcatenateKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldShiftKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldShiftYears.setOnKeyPressed(ignoreEnter);
+        textFieldShiftMonths.setOnKeyPressed(ignoreEnter);
+        textFieldShiftDays.setOnKeyPressed(ignoreEnter);
+        textFieldShiftHours.setOnKeyPressed(ignoreEnter);
+        textFieldShiftMinutes.setOnKeyPressed(ignoreEnter);
+        textFieldShiftSeconds.setOnKeyPressed(ignoreEnter);
+        textFieldShiftMilliseconds.setOnKeyPressed(ignoreEnter);
+        textFieldShiftMicroseconds.setOnKeyPressed(ignoreEnter);
+        textFieldJDKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldJDSourceKeyword.setOnKeyPressed(ignoreEnter);
+        textFieldJDSourceDatetime.setOnKeyPressed(ignoreEnter);
         textFieldAddCardRValue.textProperty().addListener((observable, oldValue, newValue) -> checkBoxAddCardRValue.setSelected(true));
         textFieldAddCardIValue.textProperty().addListener((observable, oldValue, newValue) -> checkBoxAddCardIValue.setSelected(true));
         textFieldAddCardComment.textProperty().addListener((observable, oldValue, newValue) -> checkBoxAddCardComment.setSelected(true));
