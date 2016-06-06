@@ -2,8 +2,11 @@ package cz.muni.sci.astro.fhm.gui.controlls;
 
 import cz.muni.sci.astro.fits.FitsCard;
 import javafx.event.Event;
-import javafx.scene.control.*;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TablePosition;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 

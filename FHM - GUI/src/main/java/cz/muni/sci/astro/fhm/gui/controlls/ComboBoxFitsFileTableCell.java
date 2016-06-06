@@ -7,6 +7,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.input.KeyCode;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,7 +48,8 @@ public class ComboBoxFitsFileTableCell extends TableCell<FitsCard, String> {
      * @param filesList list of files for combo box
      */
     public static void setFiles(List<String> filesList) {
-        files = filesList;
+        files = new ArrayList<>(filesList.size());
+        filesList.forEach(filename -> files.add(new File(filename).getName()));
     }
 
     /**

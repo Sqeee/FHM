@@ -1,6 +1,6 @@
 package cz.muni.sci.astro.fhm.gui;
 
-import cz.muni.sci.astro.fhm.core.MultipleOperationsRunner;
+import cz.muni.sci.astro.fhm.core.OperationConcatenate;
 
 /**
  * Enum represents concatenation types
@@ -18,9 +18,9 @@ public enum ConcatenateType {
      */
     public String getPrefix() {
         if (this == STRING) {
-            return MultipleOperationsRunner.PARAM_CONCATENATION_STRING_PREFIX;
+            return OperationConcatenate.PREFIX_STRING;
         } else if (this == KEYWORD_VALUE) {
-            return MultipleOperationsRunner.PARAM_CONCATENATION_KEYWORD_VALUE_PREFIX;
+            return OperationConcatenate.PREFIX_KEYWORD_VALUE;
         } else {
             return "Unknown";
         }

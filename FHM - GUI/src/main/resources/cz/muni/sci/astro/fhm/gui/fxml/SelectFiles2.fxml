@@ -1,38 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.sci.astro.fhm.gui.SelectFiles2Controller">
+<?import javafx.scene.text.Font?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+      spacing="5.0"
+      BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.40"
+      fx:controller="cz.muni.sci.astro.fhm.gui.SelectFiles2Controller">
     <children>
-      <Label text="Selected files:">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <ListView fx:id="listViewSelectedFiles" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
-      <Separator prefWidth="200.0" />
-      <Label text="Contains keyword filtering:">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Label text="Usage:&#10;name = value -&gt; select files containg given name with given value&#10;name != value -&gt; select files not containg given name with given value&#10;If you want use multiple condition, you can use:&#10;&amp; (both condition must be true)&#10;| (at least one condition must be true).&#10;Also you can use parenthesis for grouping conditions." textFill="LIME" wrapText="true" VBox.vgrow="NEVER" />
-      <TextArea fx:id="textAreaFiltering" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
-      <HBox alignment="CENTER" fillHeight="false" maxHeight="25.0" prefHeight="25.0" prefWidth="200.0" spacing="5.0" VBox.vgrow="NEVER">
-         <children>
-            <Button maxHeight="25.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonSelectAll" text="Select all" HBox.hgrow="ALWAYS" />
-            <Button maxHeight="25.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonPreview" text="Filter files" HBox.hgrow="ALWAYS" />
-            <Button fx:id="buttonContinue" defaultButton="true" disable="true" maxHeight="25.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonContinue" text="Continue" HBox.hgrow="ALWAYS" />
-         </children>
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
-      </HBox>
+        <Label text="Selected files:">
+            <font>
+                <Font name="System Bold" size="12.0"/>
+            </font>
+        </Label>
+        <ListView fx:id="listViewSelectedFiles" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+        <Separator prefWidth="200.0"/>
+        <Label text="Contains keyword filtering:">
+            <font>
+                <Font name="System Bold" size="12.0"/>
+            </font>
+        </Label>
+        <Label text="Usage:&#10;name = value -&gt; select files containg given name with given value&#10;name != value -&gt; select files not containg given name with given value&#10;If you want use multiple condition, you can use:&#10;&amp; (both condition must be true)&#10;| (at least one condition must be true).&#10;Also you can use parenthesis for grouping conditions."
+               textFill="LIME" wrapText="true" VBox.vgrow="NEVER"/>
+        <TextArea fx:id="textAreaFiltering" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+        <HBox alignment="CENTER" fillHeight="false" maxHeight="25.0" prefHeight="25.0" prefWidth="200.0" spacing="5.0"
+              VBox.vgrow="NEVER">
+            <children>
+                <Button maxHeight="25.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                        onAction="#handleClickButtonSelectAll" text="Select all" HBox.hgrow="ALWAYS"/>
+                <Button maxHeight="25.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                        onAction="#handleClickButtonPreview" text="Filter files" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="buttonContinue" defaultButton="true" disable="true" maxHeight="25.0"
+                        maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonContinue"
+                        text="Continue" HBox.hgrow="ALWAYS"/>
+            </children>
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+        </HBox>
     </children>
-   <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-   </padding>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+    </padding>
 </VBox>

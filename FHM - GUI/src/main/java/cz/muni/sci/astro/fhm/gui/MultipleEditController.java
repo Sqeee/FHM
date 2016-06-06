@@ -1,10 +1,10 @@
 package cz.muni.sci.astro.fhm.gui;
 
 import cz.muni.sci.astro.fhm.core.MultipleOperationsRunner;
+import cz.muni.sci.astro.fhm.core.Operation;
+import cz.muni.sci.astro.fhm.core.OperationShift;
 import cz.muni.sci.astro.fits.FitsCardDateValue;
 import cz.muni.sci.astro.fits.FitsCardDateValueUnknownFormatException;
-import cz.muni.sci.astro.fits.FitsException;
-import cz.muni.sci.astro.fits.FitsFile;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
@@ -14,8 +14,12 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -28,17 +32,14 @@ public class MultipleEditController {
     private static final String LOGGER_FAILED_TEXT = "Logger failed. No log records will be available.";
     private static final long MAX_DISPLAYED_CHARS = 100000;
     private MainViewController mainViewController;
-    private List<String> files;
-    private List<FitsFile> fitsFiles;
-    private String dir;
     private RandomAccessFile logFile;
     private MultipleOperationsRunner operationsRunner;
     private boolean allOK;
 
     @FXML
-    private Button buttonSave;
+    private Button buttonExecute;
     @FXML
-    private Button buttonSaveQuit;
+    private Button buttonExecuteQuit;
     @FXML
     private Button buttonDeselectAll;
     @FXML
@@ -58,9 +59,19 @@ public class MultipleEditController {
     @FXML
     private Button buttonAddJD;
     @FXML
-    private ListView<FitsFile> listViewFiles;
+    private ListView<String> listViewFiles;
     @FXML
     private TextArea textAreaLog;
+    @FXML
+    private ListView<Operation> listViewOperationQueue;
+    @FXML
+    private Button buttonOperationQueueMoveUp;
+    @FXML
+    private Button buttonOperationQueueMoveDown;
+    @FXML
+    private Button buttonOperationQueueRemove;
+    @FXML
+    private Button buttonOperationQueueShow;
     @FXML
     private TextField textFieldAddCardKeyword;
     @FXML
@@ -177,45 +188,13 @@ public class MultipleEditController {
     private ToggleGroup toggleGroupJD;
 
     /**
-     * Sets reference to MainViewController (important for setting content in MainView)
+     * Prepares this form
      *
+     * @param files              file list to working with
      * @param mainViewController MainViewController controller
      */
-    public void setMainViewController(MainViewController mainViewController) {
+    public void prepareWindow(List<String> files, MainViewController mainViewController) {
         this.mainViewController = mainViewController;
-    }
-
-    /**
-     * Stores selected file list from previous form
-     *
-     * @param files file list to working with
-     */
-    public void setFiles(List<String> files) {
-        this.files = files;
-    }
-
-    /**
-     * Stores path to directory, where files are located
-     *
-     * @param dir directory, where files are located
-     */
-    public void setDir(String dir) {
-        this.dir = dir;
-    }
-
-    /**
-     * Stores opened fits files
-     *
-     * @param fitsFiles list of opened fits files
-     */
-    public void setFitsFiles(List<FitsFile> fitsFiles) {
-        this.fitsFiles = fitsFiles;
-    }
-
-    /**
-     * Prepares this form
-     */
-    public void prepareWindow() {
         try {
             logFile = new RandomAccessFile(new File(LOG_FILE), "rw");
             logFile.setLength(0);
@@ -224,35 +203,21 @@ public class MultipleEditController {
             closeLogs();
         }
         operationsRunner = new MultipleOperationsRunner(this::printOK, this::printError);
-        GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_SAVE, false, e -> handleClickButtonSave());
+        GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_SAVE, false, e -> handleClickButtonExecute());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_EXIT, false, e -> quitWithConfirmation());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_SINGLE, false, e -> switchMode());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_MULTIPLE, true, null);
-        if (fitsFiles == null) {
-            fitsFiles = new ArrayList<>(files.size());
-            List<String> errors = new ArrayList<>();
-            for (String filename : files) {
-                try {
-                    fitsFiles.add(new FitsFile(new File(dir + '/' + filename)));
-                } catch (FitsException exc) {
-                    errors.add("Error: cannot load file " + filename + " with reason " + exc.getMessage());
-                }
-            }
-            if (!errors.isEmpty()) {
-                GUIHelpers.showAlert(AlertType.ERROR, "Error", "Error occurred", String.join("\n", errors));
-            }
-            if (fitsFiles.isEmpty()) {
-                buttonSelectAll.setDisable(true);
-                buttonSave.setDisable(true);
-                buttonSaveQuit.setDisable(true);
-            }
+        if (files.isEmpty()) {
+            buttonSelectAll.setDisable(true);
+            buttonExecute.setDisable(true);
+            buttonExecuteQuit.setDisable(true);
         }
-        listViewFiles.setCellFactory(listView -> new ListCell<FitsFile>() {
+        listViewFiles.setCellFactory(listView -> new ListCell<String>() {
             @Override
-            protected void updateItem(FitsFile item, boolean empty) {
+            protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null) {
-                    setText(item.getFilename());
+                    setText(new File(item).getName());
                 }
             }
         });
@@ -268,12 +233,19 @@ public class MultipleEditController {
             buttonAddJD.setDisable(after == null);
         });
         listViewFiles.setPlaceholder(new Label("No files"));
-        listViewFiles.setItems(FXCollections.observableArrayList(fitsFiles));
+        listViewFiles.setItems(FXCollections.observableArrayList(files));
         listViewFiles.getSelectionModel().selectAll();
+        listViewOperationQueue.setPlaceholder(new Label("No queued operations"));
+        listViewOperationQueue.getSelectionModel().selectedItemProperty().addListener((ov, before, after) -> {
+            buttonOperationQueueRemove.setDisable(after == null);
+            buttonOperationQueueShow.setDisable(after == null);
+        });
+        listViewOperationQueue.getSelectionModel().selectedIndexProperty().addListener((ov, before, after) -> {
+            GUIHelpers.checkMoveButtons(listViewOperationQueue.getSelectionModel().getSelectedIndex(), listViewOperationQueue.getItems().size(), buttonOperationQueueMoveUp, buttonOperationQueueMoveDown);
+        });
+        listViewOperationQueue.setItems(FXCollections.observableList(operationsRunner.getOperations()));
         listViewConcatenationValues.setPlaceholder(new Label("No values"));
         listViewConcatenationValues.getSelectionModel().selectedItemProperty().addListener((ov, before, after) -> {
-            buttonConcatenateMoveUp.setDisable(after == null);
-            buttonConcatenateMoveDown.setDisable(after == null);
             buttonConcatenateRemove.setDisable(after == null);
         });
         listViewConcatenationValues.getSelectionModel().selectedIndexProperty().addListener((ov, before, after) -> {
@@ -346,40 +318,32 @@ public class MultipleEditController {
     }
 
     /**
-     * Handles click on button Save - tries to save content, if there are some problems, shows them and return false
+     * Handles click on button Execute - tries to execute operations, if there are some problems, shows them and return false
      *
      * @return true if save does not failed, otherwise false
      */
     @FXML
-    private boolean handleClickButtonSave() {
-        List<String> problems = new ArrayList<>();
-        for (FitsFile file : fitsFiles) {
-            List<String> problemsFile = file.getHDU(0).getHeader().checkSaveHeader();
-            if (!problemsFile.isEmpty()) {
-                problems.add("Saving file " + file.getFilename() + " fails with error: " + String.join(System.lineSeparator(), problemsFile));
-            }
+    private boolean handleClickButtonExecute() {
+        boolean result;
+        printOK("Executing operations on files.");
+        operationsRunner.executeOperations();
+        listViewOperationQueue.getItems().clear();
+        result = allOK;
+        refreshLogs();
+        if (result) {
+            GUIHelpers.showAlert(AlertType.INFORMATION, "Executing operations", "Operations on all files were executed successfully.", null);
+        } else {
+            GUIHelpers.showAlert(AlertType.ERROR, "Executing operations", "Problems with executing operations.", "Details are in log.");
         }
-        List<String> notSavedFiles = new ArrayList<>();
-        notSavedFiles.addAll(fitsFiles.stream().filter(file -> !file.saveFile()).map(FitsFile::getFilename).collect(Collectors.toList()));
-        if (!problems.isEmpty()) {
-            problems.add(0, "Saving these files failed: " + String.join(", ", notSavedFiles));
-            problems.add(System.lineSeparator());
-            printError(String.join(System.lineSeparator(), problems));
-            refreshLogs();
-            GUIHelpers.showAlert(AlertType.ERROR, "Saving files", "Problems with saving.", "Details are in log.");
-            return false;
-        }
-        printOK("All files were saved successfully.");
-        GUIHelpers.showAlert(AlertType.INFORMATION, "Saving files", "Files were saved successfully.", null);
-        return true;
+        return result;
     }
 
     /**
-     * Handles click on button Quit and save - tries to save content, if there are some problems, shows them, in case of no problems quits
+     * Handles click on button Execute and quit - tries to execute operations, if there are some problems, shows them, in case of no problems quits
      */
     @FXML
-    private void handleClickButtonQuitSave() {
-        if (handleClickButtonSave()) {
+    private void handleClickButtonExecuteQuit() {
+        if (handleClickButtonExecute()) {
             quit();
         }
     }
@@ -407,7 +371,7 @@ public class MultipleEditController {
      */
     @FXML
     private void handleClickButtonInvertSelection() {
-        for (int i = 0; i < fitsFiles.size(); i++) {
+        for (int i = 0; i < listViewFiles.getItems().size(); i++) {
             if (listViewFiles.getSelectionModel().isSelected(i)) {
                 listViewFiles.getSelectionModel().clearSelection(i);
             } else {
@@ -454,9 +418,9 @@ public class MultipleEditController {
             }
         }
         boolean update = checkBoxAddCardUpdate.isSelected();
-        printOperationStartInfo("Operation of adding new card:");
+        printOperationAddQueueStartInfo("Preparing operation of adding new card:");
         operationsRunner.addCard(listViewFiles.getSelectionModel().getSelectedItems(), keyword, rValue, iValue, comment, index, afterKeyword, update);
-        printOperationEndInfo();
+        printOperationAddQueueEndInfo();
     }
 
     /**
@@ -476,9 +440,9 @@ public class MultipleEditController {
                 return;
             }
         }
-        printOperationStartInfo("Operation of deleting card:");
+        printOperationAddQueueStartInfo("Preparing operation of deleting card:");
         operationsRunner.removeCard(listViewFiles.getSelectionModel().getSelectedItems(), keyword, index);
-        printOperationEndInfo();
+        printOperationAddQueueEndInfo();
     }
 
     /**
@@ -519,14 +483,14 @@ public class MultipleEditController {
             }
         }
         boolean delete = checkBoxChangeCardDelete.isSelected();
-        printOperationStartInfo("Operation of changing new card:");
+        printOperationAddQueueStartInfo("Preparing operation of changing new card:");
         if (checkBoxChangeCardIndex.isSelected()) {
             operationsRunner.changeIndexCard(listViewFiles.getSelectionModel().getSelectedItems(), keyword, index);
         }
         if (checkBoxChangeCardNewKeyword.isSelected() || checkBoxChangeCardRValue.isSelected() || checkBoxChangeCardIValue.isSelected() || checkBoxChangeCardComment.isSelected()) {
             operationsRunner.changeCard(listViewFiles.getSelectionModel().getSelectedItems(), keyword, newKeyword, rValue, iValue, comment, delete);
         }
-        printOperationEndInfo();
+        printOperationAddQueueEndInfo();
     }
 
     /**
@@ -542,9 +506,9 @@ public class MultipleEditController {
             GUIHelpers.showAlert(AlertType.INFORMATION, "Concatenating", "At least one concatenation value must be inserted.", "");
             return;
         }
-        printOperationStartInfo("Operation of concatenating values:");
+        printOperationAddQueueStartInfo("Preparing operation of concatenating values:");
         operationsRunner.concatenate(listViewFiles.getSelectionModel().getSelectedItems(), keyword, values, "", update);
-        printOperationEndInfo();
+        printOperationAddQueueEndInfo();
     }
 
     /**
@@ -570,7 +534,7 @@ public class MultipleEditController {
      */
     @FXML
     private void handleClickButtonConcatenateMoveDown() {
-        moveSelectedValue(1);
+        moveSelectedConcatenationValue(1);
         listViewConcatenationValues.getSelectionModel().selectNext();
     }
 
@@ -579,7 +543,7 @@ public class MultipleEditController {
      */
     @FXML
     private void handleClickButtonConcatenateMoveUp() {
-        moveSelectedValue(-1);
+        moveSelectedConcatenationValue(-1);
         listViewConcatenationValues.getSelectionModel().selectPrevious();
     }
 
@@ -588,7 +552,7 @@ public class MultipleEditController {
      *
      * @param offset how many lines values should be moved
      */
-    private void moveSelectedValue(int offset) {
+    private void moveSelectedConcatenationValue(int offset) {
         int selectedIndex = listViewConcatenationValues.getSelectionModel().getSelectedIndex();
         ConcatenateValue movedValue = listViewConcatenationValues.getItems().set(selectedIndex + offset, listViewConcatenationValues.getSelectionModel().getSelectedItem());
         listViewConcatenationValues.getItems().set(selectedIndex, movedValue);
@@ -616,7 +580,7 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_YEAR_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_YEAR + interval);
             }
         }
         value = textFieldShiftMonths.getText().trim();
@@ -625,7 +589,7 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_MONTH_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_MONTH + interval);
             }
         }
         value = textFieldShiftDays.getText().trim();
@@ -634,7 +598,7 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_DAY_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_DAY + interval);
             }
         }
         value = textFieldShiftHours.getText().trim();
@@ -643,7 +607,7 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_HOUR_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_HOUR + interval);
             }
         }
         value = textFieldShiftMinutes.getText().trim();
@@ -652,7 +616,7 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_MINUTE_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_MINUTE + interval);
             }
         }
         value = textFieldShiftSeconds.getText().trim();
@@ -661,7 +625,7 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_SECOND_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_SECOND + interval);
             }
         }
         value = textFieldShiftMilliseconds.getText().trim();
@@ -670,7 +634,7 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_MILLISECOND_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_MILLISECOND + interval);
             }
         }
         value = textFieldShiftMicroseconds.getText().trim();
@@ -679,16 +643,16 @@ public class MultipleEditController {
             if (interval == null) {
                 return;
             } else {
-                intervals.add(MultipleOperationsRunner.PARAM_SHIFTING_MICROSECOND_PREFIX + interval);
+                intervals.add(OperationShift.PREFIX_MICROSECOND + interval);
             }
         }
         if (intervals.isEmpty()) {
             GUIHelpers.showAlert(AlertType.INFORMATION, "Shifting", "At least one time parameter must be specified", "");
             return;
         }
-        printOperationStartInfo("Operation of shifting values:");
+        printOperationAddQueueStartInfo("Preparing operation of shifting values:");
         operationsRunner.shift(listViewFiles.getSelectionModel().getSelectedItems(), keyword, intervals);
-        printOperationEndInfo();
+        printOperationAddQueueEndInfo();
     }
 
     /**
@@ -713,9 +677,59 @@ public class MultipleEditController {
             }
         }
         boolean update = checkBoxJDUpdate.isSelected();
-        printOperationStartInfo("Operation of adding card with julian day:");
+        printOperationAddQueueStartInfo("Preparing operation of adding card with julian day:");
         operationsRunner.jd(listViewFiles.getSelectionModel().getSelectedItems(), keyword, sourceKeyword, dateTime, update);
-        printOperationEndInfo();
+        printOperationAddQueueEndInfo();
+    }
+
+    /**
+     * Handles click on button move down - moves down operation
+     */
+    @FXML
+    private void handleClickButtonOperationQueueMoveDown() {
+        moveSelectedOperation(1);
+    }
+
+    /**
+     * Handles click on button move up - moves up operation
+     */
+    @FXML
+    private void handleClickButtonOperationQueueMoveUp() {
+        moveSelectedOperation(-1);
+    }
+
+    /**
+     * Moves selected operation in list view with given offset
+     *
+     * @param offset how many lines operation should be moved
+     */
+    private void moveSelectedOperation(int offset) {
+        int selectedIndex = listViewOperationQueue.getSelectionModel().getSelectedIndex();
+        operationsRunner.swapOperations(listViewOperationQueue.getItems().get(selectedIndex), listViewOperationQueue.getItems().get(selectedIndex + offset));
+        listViewOperationQueue.setItems(FXCollections.observableList(operationsRunner.getOperations()));
+    }
+
+    /**
+     * Handles click on button remove - removes operation
+     */
+    @FXML
+    private void handleClickButtonOperationQueueRemove() {
+        Operation operation = listViewOperationQueue.getSelectionModel().getSelectedItem();
+        operationsRunner.removeOperation(operation);
+        listViewOperationQueue.setItems(FXCollections.observableList(operationsRunner.getOperations()));
+    }
+
+    /**
+     * Handles click on button show - show files affected by selected operation
+     */
+    @FXML
+    private void handleClickButtonOperationQueueShowFiles() {
+        StringJoiner joiner = new StringJoiner(", ");
+        List<String> files = operationsRunner.getFilesForOperation(listViewOperationQueue.getSelectionModel().getSelectedItem());
+        for (String file : files) {
+            joiner.add(new File(file).getName());
+        }
+        GUIHelpers.showAlert(AlertType.INFORMATION, "Affected files by operation", "These files will be affected by operation", joiner.toString());
     }
 
     /**
@@ -754,17 +768,20 @@ public class MultipleEditController {
      */
     private void quit() {
         closeLogs();
-        fitsFiles.forEach(FitsFile::closeFile);
         Platform.exit();
         System.exit(0);
     }
 
     /**
-     * Shows confirmation of exit and then maybe closes entire app
+     * Shows confirmation of exit (if it is necessary) and then maybe closes entire app
      */
     @FXML
     private void quitWithConfirmation() {
-        GUIHelpers.showAlert(AlertType.CONFIRMATION, "Confirm exit", "Exiting application", "Are you sure you want to exit application? You lost all unsaved changes.").ifPresent(response -> {
+        if (operationsRunner.getOperations().isEmpty()) {
+            quit();
+            return;
+        }
+        GUIHelpers.showAlert(AlertType.CONFIRMATION, "Confirm exit", "Exiting application", "Are you sure you want to exit application? You lost all not executed operations.").ifPresent(response -> {
             if (response == ButtonType.OK) {
                 quit();
             }
@@ -826,25 +843,26 @@ public class MultipleEditController {
     }
 
     /**
-     * Prints info about start of operation
+     * Prints info about start of adding operation into queue
      *
      * @param text info
      */
-    private void printOperationStartInfo(String text) {
+    private void printOperationAddQueueStartInfo(String text) {
         allOK = true;
         printOK(text);
     }
 
     /**
-     * Prints operation info about success and refreshes logs
+     * Prints operation info about end of adding operation into queue - show success and refreshes logs
      */
-    private void printOperationEndInfo() {
+    private void printOperationAddQueueEndInfo() {
         printOK();
         refreshLogs();
+        listViewOperationQueue.setItems(FXCollections.observableList(operationsRunner.getOperations()));
         if (allOK) {
-            GUIHelpers.showAlert(AlertType.INFORMATION, "Operation summary", "Operation was completed without errors", "");
+            GUIHelpers.showAlert(AlertType.INFORMATION, "Operation summary", "Adding operation into queue was completed without errors.", "");
         } else {
-            GUIHelpers.showAlert(AlertType.ERROR, "Operation summary", "Some error occurs during processing last operation. Check logs.", "");
+            GUIHelpers.showAlert(AlertType.ERROR, "Operation summary", "Some errors occur during adding last operation into queue. Check logs.", "");
         }
     }
 
@@ -852,14 +870,30 @@ public class MultipleEditController {
      * Switches mode to single operation
      */
     private void switchMode() {
-        if (fitsFiles.size() > 50) {
-            GUIHelpers.showAlert(AlertType.INFORMATION, "Swith to single operation mode", "Switching cannot be done", "Single operation mode is not for too much open files, it was intended only for few files, where you want exact editing and WYSIWYG editor.");
+        if (listViewFiles.getItems().size() > 50) {
+            GUIHelpers.showAlert(AlertType.INFORMATION, "Switch to single operation mode", "Switching cannot be done", "Single operation mode is not for too much open files, it was intended only for few files, where you want exact editing and WYSIWYG editor.");
             return;
         }
+        if (operationsRunner.getOperations().isEmpty()) {
+            openEditFrom();
+            return;
+        }
+        GUIHelpers.showAlert(AlertType.CONFIRMATION, "Confirm switching mode", "Switching modes", "Are you sure you want to switch modes? You lost all not executed operations.").ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                EditController editController = (EditController) mainViewController.setContent("fxml/Edit.fxml");
+                closeLogs();
+                editController.prepareWindow(listViewFiles.getItems(), mainViewController);
+            }
+        });
+
+    }
+
+    /**
+     * Opens single edit form
+     */
+    private void openEditFrom() {
         EditController editController = (EditController) mainViewController.setContent("fxml/Edit.fxml");
-        editController.setMainViewController(mainViewController);
-        editController.setFitsFiles(fitsFiles);
         closeLogs();
-        editController.prepareWindow();
+        editController.prepareWindow(listViewFiles.getItems(), mainViewController);
     }
 }

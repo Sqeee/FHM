@@ -87,10 +87,7 @@ public class SelectFiles1Controller {
     protected void handleClickButtonContinue() {
         prefs.put(PREFERENCE_DEFAULT_DIR, textFieldChooseDir.getText());
         SelectFiles2Controller selectFiles2Controller = (SelectFiles2Controller) mainViewController.setContent("fxml/SelectFiles2.fxml");
-        selectFiles2Controller.setMainViewController(mainViewController);
-        selectFiles2Controller.setDir(textFieldChooseDir.getText());
-        selectFiles2Controller.setFiles(listViewFiles.getSelectionModel().getSelectedItems());
-        selectFiles2Controller.prepareWindow();
+        selectFiles2Controller.prepareWindow(textFieldChooseDir.getText(), listViewFiles.getSelectionModel().getSelectedItems(), mainViewController);
     }
 
     /**

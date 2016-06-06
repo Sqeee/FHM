@@ -31,9 +31,9 @@ public class App extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("fxml/MainView.fxml"));
         primaryStage.setMinHeight(560);
-        primaryStage.setMinWidth(750);
+        primaryStage.setMinWidth(790);
         primaryStage.setTitle("Fits Header Modifier");
-        primaryStage.setScene(new Scene(root, 750, 560));
+        primaryStage.setScene(new Scene(root, 770, 560));
         GUIHelpers.setIcons(primaryStage);
         primaryStage.show();
     }

@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
-
-<Tab closable="false" text="Tab1" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-   <content>
-      <TableView editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="221.0" prefWidth="610.0">
-         <columns>
-            <TableColumn prefWidth="85.0" text="Subject" />
-            <TableColumn prefWidth="105.0" text="Datatype" />
-            <TableColumn prefWidth="178.0" text="Real value" />
-            <TableColumn prefWidth="178.0" text="Imaginary value" />
-            <TableColumn prefWidth="178.0" text="Comment" />
-         </columns>
-      </TableView>
-   </content>
+<Tab xmlns:fx="http://javafx.com/fxml/1" closable="false" text="Tab1" xmlns="http://javafx.com/javafx/8">
+    <content>
+        <TableView editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                   prefHeight="221.0" prefWidth="610.0">
+            <columns>
+                <TableColumn prefWidth="85.0" text="Subject"/>
+                <TableColumn prefWidth="105.0" text="Datatype"/>
+                <TableColumn prefWidth="178.0" text="Real value"/>
+                <TableColumn prefWidth="178.0" text="Imaginary value"/>
+                <TableColumn prefWidth="178.0" text="Comment"/>
+            </columns>
+        </TableView>
+    </content>
 </Tab>

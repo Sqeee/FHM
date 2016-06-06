@@ -3,7 +3,9 @@ package cz.muni.sci.astro.fhm.gui;
 import cz.muni.sci.astro.fhm.gui.controlls.ComboBoxFitsFileTableCell;
 import cz.muni.sci.astro.fhm.gui.controlls.TextFieldFitsCardTableCell;
 import cz.muni.sci.astro.fhm.gui.controlls.TextFieldKeywordTableCell;
-import cz.muni.sci.astro.fits.*;
+import cz.muni.sci.astro.fits.FitsCard;
+import cz.muni.sci.astro.fits.FitsException;
+import cz.muni.sci.astro.fits.FitsFile;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,8 +16,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.layout.VBox;
@@ -24,6 +26,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Pair;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,45 +76,34 @@ public class EditController {
     private Button buttonSaveQuit;
 
     /**
-     * Sets reference to MainViewController (important for setting content in MainView)
+     * Prepares this form - load tabs into tabView
      *
+     * @param filenames          file list to working with
      * @param mainViewController MainViewController controller
      */
-    public void setMainViewController(MainViewController mainViewController) {
+    public void prepareWindow(List<String> filenames, MainViewController mainViewController) {
         this.mainViewController = mainViewController;
-    }
-
-    /**
-     * Stores fits files
-     *
-     * @param fitsFiles file list to working with
-     */
-    public void setFitsFiles(List<FitsFile> fitsFiles) {
-        this.fitsFiles = fitsFiles;
-    }
-
-    /**
-     * Prepares this form - load tabs into tabView
-     */
-    public void prepareWindow() {
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_SAVE, false, e -> handleClickButtonSave());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_EXIT, false, e -> quitWithConfirmation());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_TOOLS, MenuBarController.MENU_ITEM_TOOLS_CONCATENATION_MANAGER, false, e -> openConcatenationManagerDialog());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_SINGLE, true, null);
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_MULTIPLE, false, e -> switchMode());
-        files = new ArrayList<>(fitsFiles.size());
+        files = filenames;
         cardsInFiles = new HashMap<>();
         cardsList = new HashMap<>();
         List<String> errors = new ArrayList<>();
         tabsCards = new ArrayList<>();
         tabsCardsToRemove = new ArrayList<>();
         tabsFiles = new ArrayList<>();
-        for (FitsFile file : fitsFiles) {
+        fitsFiles = new ArrayList<>();
+        for (String filename : files) {
+            File file = new File(filename);
             try {
-                files.add(file.getFilename());
+                FitsFile fitsFile = new FitsFile(file);
+                fitsFiles.add(fitsFile);
                 tabsFiles.add(newEditTab());
-            } catch (IOException exc) {
-                errors.add("Error: cannot load file " + file.getFilename() + " with reason " + exc.getMessage());
+            } catch (FitsException | IOException exc) {
+                errors.add("Error: cannot load file " + file.getName() + " with reason " + exc.getMessage());
             }
         }
         ComboBoxFitsFileTableCell.setFiles(files);
@@ -238,7 +230,7 @@ public class EditController {
             tabTableView.getItems().add(tabTableView.getItems().size() - 1, t.getRowValue());
             tabTableView = getTableViewInTab(getTabWithName(tabsFiles, t.getOldValue()));
             tabTableView.getItems().remove(t.getRowValue());
-            cardsInFiles.put(t.getRowValue(), fitsFiles.get(files.indexOf(t.getNewValue())));
+            fitsFiles.stream().filter(fitsFile -> fitsFile.getFilename().equals(t.getNewValue())).forEach(fitsFile -> cardsInFiles.put(t.getRowValue(), fitsFile));
             refreshContentTableView(t.getTableColumn());
         };
         prepareTabView(tableView, true, "Filename", cellCard -> new SimpleStringProperty(cardsInFiles.get(cellCard.getValue()).getFilename()), tableColumn -> new ComboBoxFitsFileTableCell(), subjectSetOnEditCommit);
@@ -625,7 +617,7 @@ public class EditController {
      * Close entire app
      */
     private void quit() {
-        fitsFiles.forEach(FitsFile::closeFile);
+        fitsFiles.forEach(FitsFile::close);
         Platform.exit();
         System.exit(0);
     }
@@ -707,11 +699,14 @@ public class EditController {
      * Switches mode to multiple operation
      */
     private void switchMode() {
-        MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("fxml/MultipleEdit.fxml");
-        multipleEditController.setMainViewController(mainViewController);
-        multipleEditController.setFitsFiles(fitsFiles);
-        deactivateMenuItems();
-        multipleEditController.prepareWindow();
+        GUIHelpers.showAlert(AlertType.CONFIRMATION, "Confirm switching mode", "Switching modes", "Are you sure you want to switch modes? You lost all unsaved changes.").ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                fitsFiles.forEach(FitsFile::close);
+                MultipleEditController multipleEditController = (MultipleEditController) mainViewController.setContent("fxml/MultipleEdit.fxml");
+                deactivateMenuItems();
+                multipleEditController.prepareWindow(files, mainViewController);
+            }
+        });
     }
 
     /**

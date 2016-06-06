@@ -1,464 +1,624 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.effect.*?>
 <?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-
-<VBox spacing="5.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.muni.sci.astro.fhm.gui.MultipleEditController">
-   <children>
-      <HBox spacing="5.0" VBox.vgrow="ALWAYS">
-         <children>
-            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <Label text="Files:">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Label>
-                  <ListView fx:id="listViewFiles" VBox.vgrow="ALWAYS" />
-                  <HBox spacing="5.0">
-                     <children>
-                        <Button fx:id="buttonDeselectAll" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonDeselectAll" text="Deselect all" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="buttonSelectAll" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonSelectAll" text="Select all" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="buttonInvertSelection" maxWidth="1.7976931348623157E308" minWidth="95.0" mnemonicParsing="false" onAction="#handleClickButtonInvertSelection" text="Invert" HBox.hgrow="ALWAYS" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-            <Separator orientation="VERTICAL" HBox.hgrow="ALWAYS" />
-            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <Label text="Operations:">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                  </Label>
-                  <TabPane maxHeight="250.0" minHeight="250.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-                    <tabs>
-                      <Tab text="Add card">
-                        <content>
-                              <GridPane hgap="5.0" vgap="5.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints minWidth="150.0" />
-                                    <ColumnConstraints minWidth="115.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                 </rowConstraints>
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="textFieldAddCardKeyword" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.valignment="CENTER" />
-                                    <TextField fx:id="textFieldAddCardRValue" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldAddCardIValue" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-                                    <TextField fx:id="textFieldAddCardComment" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-                                    <TextField fx:id="textFieldAddCardIndex" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                    <TextField fx:id="textFieldAddCardAfterKeyword" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                                    <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="1">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxAddCardRValue" mnemonicParsing="false" />
-                                          <Label text="Real/Literal value:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxAddCardIValue" mnemonicParsing="false" />
-                                          <Label text="Imaginary value:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxAddCardComment" mnemonicParsing="false" />
-                                          <Label text="Comment:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="4" GridPane.rowSpan="2">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxAddCardPosition" mnemonicParsing="false" />
-                                          <Label text="Position:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <RadioButton fx:id="toggleAddCardIndex" mnemonicParsing="false" selected="true" text="index" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                       <toggleGroup>
-                                          <ToggleGroup fx:id="toggleGroupAddCardPosition" />
-                                       </toggleGroup>
-                                    </RadioButton>
-                                    <RadioButton fx:id="toggleAddCardAfterCard" mnemonicParsing="false" text="after keyword" toggleGroup="$toggleGroupAddCardPosition" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                    <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="6">
-                                       <children>
-                                          <Button fx:id="buttonAddCard" disable="true" mnemonicParsing="false" onAction="#handleClickButtonAddCard" text="Add card" />
-                                          <CheckBox fx:id="checkBoxAddCardUpdate" mnemonicParsing="false" text="Update card if keyword exists" />
-                                       </children>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </GridPane>
-                        </content>
-                      </Tab>
-                      <Tab closable="false" text="Remove card">
-                           <content>
-                              <GridPane hgap="5.0" vgap="5.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints minWidth="10.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints minHeight="10.0" />
-                                    <RowConstraints minHeight="10.0" />
-                                    <RowConstraints minHeight="10.0" />
-                                 </rowConstraints>
-                                 <children>
-                                    <RadioButton fx:id="toggleRemoveCardKeyword" mnemonicParsing="false" selected="true" text="keyword">
-                                       <toggleGroup>
-                                          <ToggleGroup fx:id="toggleGroupRemoveCard" />
-                                       </toggleGroup>
-                                    </RadioButton>
-                                    <TextField fx:id="textFieldRemoveCardKeyword" GridPane.columnIndex="1" />
-                                    <RadioButton fx:id="toggleRemoveCardIndex" mnemonicParsing="false" text="index" toggleGroup="$toggleGroupRemoveCard" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldRemoveCardIndex" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <Button fx:id="buttonRemoveCard" disable="true" mnemonicParsing="false" onAction="#handleClickButtonRemoveCard" text="Remove card" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </GridPane>
-                           </content>
-                      </Tab>
-                        <Tab closable="false" text="Change card">
-                           <content>
-                              <GridPane hgap="5.0" vgap="5.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints minWidth="10.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                 </rowConstraints>
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="textFieldChangeCardKeyword" GridPane.columnIndex="1" GridPane.valignment="CENTER" />
-                                    <TextField fx:id="textFieldChangeCardNewKeyword" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldChangeCardRValue" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <TextField fx:id="textFieldChangeCardIValue" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                    <TextField fx:id="textFieldChangeCardComment" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                    <TextField fx:id="textFieldChangeCardIndex" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                    <HBox alignment="CENTER" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxChangeCardNewKeyword" mnemonicParsing="false" />
-                                          <Label text="New keyword:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="2">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxChangeCardRValue" mnemonicParsing="false" />
-                                          <Label text="Real/Literal value:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER" GridPane.halignment="RIGHT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxChangeCardIValue" mnemonicParsing="false" />
-                                          <Label text="Imaginary value:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxChangeCardComment" mnemonicParsing="false" />
-                                          <Label text="Comment:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="5">
-                                       <children>
-                                          <CheckBox fx:id="checkBoxChangeCardIndex" mnemonicParsing="false" />
-                                          <Label text="Index:">
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="6">
-                                       <children>
-                                          <Button fx:id="buttonChangeCard" disable="true" mnemonicParsing="false" onAction="#handleClickButtonChangeCard" text="Change card" />
-                                          <CheckBox fx:id="checkBoxChangeCardDelete" mnemonicParsing="false" text="Delete new keyword card if exists" />
-                                       </children>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </GridPane>
-                           </content>
-                        </Tab>
-                        <Tab closable="false" text="Concatenating">
-                           <content>
-                              <GridPane hgap="5.0" vgap="5.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints minWidth="95.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                    <ColumnConstraints minWidth="95.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                 </rowConstraints>
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label alignment="TOP_LEFT" text="Keyword value:" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="String value:" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Values:" GridPane.halignment="RIGHT" GridPane.rowIndex="3" GridPane.rowSpan="3">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="textFieldConcatenateKeyword" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.valignment="CENTER" />
-                                    <TextField fx:id="textFieldConcatenateKeywordValue" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <Button fx:id="buttonConcatenateAddKeywordValue" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonConcatenateAddKeywordValue" text="Add to values" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldConcatenateString" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <Button fx:id="buttonConcatenateAddString" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonConcatenateAddString" text="Add to values" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                    <ListView fx:id="listViewConcatenationValues" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.rowSpan="3" />
-                                    <Button fx:id="buttonConcatenateMoveUp" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonConcatenateMoveUp" text="Move up" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                    <Button fx:id="buttonConcatenateMoveDown" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonConcatenateMoveDown" text="Move down" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                    <Button fx:id="buttonConcatenateRemove" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleClickButtonConcatenateRemove" text="Remove" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                                    <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="6">
-                                       <children>
-                                          <Button fx:id="buttonConcatenate" disable="true" mnemonicParsing="false" onAction="#handleClickButtonConcatenate" text="Concatenate" />
-                                          <CheckBox fx:id="checkBoxConcatenateUpdate" mnemonicParsing="false" text="Update card if keyword exists" />
-                                       </children>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </GridPane>
-                           </content>
-                        </Tab>
-                        <Tab closable="false" text="Shifting">
-                           <content>
-                              <GridPane hgap="5.0" vgap="5.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="70.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                 </rowConstraints>
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label alignment="TOP_LEFT" text="Years:" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Months:" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Days:" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Hours:" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="textFieldShiftKeyword" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.valignment="CENTER" />
-                                    <TextField fx:id="textFieldShiftYears" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldShiftMonths" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <TextField fx:id="textFieldShiftDays" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                    <TextField fx:id="textFieldShiftHours" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                    <Label alignment="TOP_LEFT" text="Minutes:" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label alignment="TOP_LEFT" text="Seconds:" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label alignment="TOP_LEFT" text="Milliseconds:" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <Label alignment="TOP_LEFT" text="Microseconds:" GridPane.columnIndex="2" GridPane.rowIndex="4">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="textFieldShiftMinutes" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldShiftSeconds" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                    <TextField fx:id="textFieldShiftMilliseconds" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                    <TextField fx:id="textFieldShiftMicroseconds" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                    <Button fx:id="buttonShift" disable="true" mnemonicParsing="false" onAction="#handleClickButtonShift" text="Shift" GridPane.columnSpan="4" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </GridPane>
-                           </content>
-                        </Tab>
-                        <Tab closable="false" text="JD">
-                           <content>
-                              <GridPane hgap="5.0" vgap="5.0">
-                                 <columnConstraints>
-                                    <ColumnConstraints minWidth="10.0" />
-                                    <ColumnConstraints minWidth="10.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" />
-                                    <RowConstraints minHeight="10.0" />
-                                    <RowConstraints minHeight="10.0" />
-                                    <RowConstraints minHeight="10.0" />
-                                 </rowConstraints>
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="textFieldJDKeyword" GridPane.columnIndex="1" GridPane.columnSpan="2" />
-                                    <TextField fx:id="textFieldJDSourceKeyword" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                    <TextField fx:id="textFieldJDSourceDatetime" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                    <RadioButton fx:id="toggleJDSourceKeyword" mnemonicParsing="false" selected="true" text="keyword" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                       <toggleGroup>
-                                          <ToggleGroup fx:id="toggleGroupJD" />
-                                       </toggleGroup>
-                                    </RadioButton>
-                                    <RadioButton fx:id="toggleJDSourceDatetime" mnemonicParsing="false" text="date time" toggleGroup="$toggleGroupJD" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <Label alignment="TOP_LEFT" text="Source:" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.rowSpan="2">
-                                       <font>
-                                          <Font name="System Bold" size="12.0" />
-                                       </font>
-                                    </Label>
-                                    <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="3">
-                                       <children>
-                                          <Button fx:id="buttonAddJD" disable="true" mnemonicParsing="false" onAction="#handleClickButtonAddJD" text="Add JD" />
-                                          <CheckBox fx:id="checkBoxJDUpdate" mnemonicParsing="false" text="Update card if keyword exists" />
-                                       </children>
-                                    </HBox>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                              </GridPane>
-                           </content>
-                        </Tab>
-                    </tabs>
-                  </TabPane>
-                  <Separator />
-                  <VBox spacing="5.0" VBox.vgrow="ALWAYS">
-                     <children>
-                        <Label text="Last operation results:">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
+<?import javafx.scene.text.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.40"
+      fx:controller="cz.muni.sci.astro.fhm.gui.MultipleEditController">
+    <children>
+        <HBox spacing="5.0" VBox.vgrow="ALWAYS">
+            <children>
+                <VBox maxWidth="600.0" minWidth="350.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="Files:">
+                            <font>
+                                <Font name="System Bold" size="12.0"/>
+                            </font>
                         </Label>
-                        <TextArea fx:id="textAreaLog" editable="false" text="(Empty)" wrapText="true" VBox.vgrow="ALWAYS" />
-                     </children>
-                  </VBox>
-               </children>
-            </VBox>
-         </children>
-      </HBox>
-      <HBox spacing="5.0">
-         <children>
-            <Button fx:id="buttonSave" maxWidth="1.7976931348623157E308" minWidth="130.0" mnemonicParsing="false" onAction="#handleClickButtonSave" text="Save" HBox.hgrow="ALWAYS" />
-            <Button fx:id="buttonSaveQuit" defaultButton="true" maxWidth="1.7976931348623157E308" minWidth="130.0" mnemonicParsing="false" onAction="#handleClickButtonQuitSave" text="Save and quit" HBox.hgrow="ALWAYS" />
-            <Button cancelButton="true" maxWidth="1.7976931348623157E308" minWidth="130.0" mnemonicParsing="false" onAction="#quitWithConfirmation" text="Quit" HBox.hgrow="ALWAYS" />
-         </children>
-      </HBox>
-   </children>
-   <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-   </padding>
+                        <ListView fx:id="listViewFiles" VBox.vgrow="ALWAYS"/>
+                        <HBox spacing="5.0">
+                            <children>
+                                <Button fx:id="buttonDeselectAll" maxWidth="1.7976931348623157E308" minWidth="95.0"
+                                        mnemonicParsing="false" onAction="#handleClickButtonDeselectAll"
+                                        text="Deselect all" HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="buttonSelectAll" maxWidth="1.7976931348623157E308" minWidth="95.0"
+                                        mnemonicParsing="false" onAction="#handleClickButtonSelectAll" text="Select all"
+                                        HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="buttonInvertSelection" maxWidth="1.7976931348623157E308" minWidth="95.0"
+                                        mnemonicParsing="false" onAction="#handleClickButtonInvertSelection"
+                                        text="Invert" HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <Separator orientation="VERTICAL" HBox.hgrow="ALWAYS"/>
+                <VBox minWidth="400.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label text="Operations:">
+                            <font>
+                                <Font name="System Bold" size="12.0"/>
+                            </font>
+                        </Label>
+                        <TabPane maxHeight="250.0" minHeight="250.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                            <tabs>
+                                <Tab text="Add card">
+                                    <content>
+                                        <GridPane hgap="5.0" vgap="5.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="150.0"/>
+                                                <ColumnConstraints minWidth="115.0"/>
+                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <TextField fx:id="textFieldAddCardKeyword" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2" GridPane.valignment="CENTER"/>
+                                                <TextField fx:id="textFieldAddCardRValue" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textFieldAddCardIValue" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+                                                <TextField fx:id="textFieldAddCardComment" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2" GridPane.rowIndex="3"/>
+                                                <TextField fx:id="textFieldAddCardIndex" GridPane.columnIndex="2"
+                                                           GridPane.rowIndex="4"/>
+                                                <TextField fx:id="textFieldAddCardAfterKeyword" GridPane.columnIndex="2"
+                                                           GridPane.rowIndex="5"/>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="1">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxAddCardRValue"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Real/Literal value:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT"
+                                                      GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxAddCardIValue"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Imaginary value:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT"
+                                                      GridPane.rowIndex="3">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxAddCardComment"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Comment:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="4"
+                                                      GridPane.rowSpan="2">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxAddCardPosition"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Position:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <RadioButton fx:id="toggleAddCardIndex" mnemonicParsing="false"
+                                                             selected="true" text="index" GridPane.columnIndex="1"
+                                                             GridPane.rowIndex="4">
+                                                    <toggleGroup>
+                                                        <ToggleGroup fx:id="toggleGroupAddCardPosition"/>
+                                                    </toggleGroup>
+                                                </RadioButton>
+                                                <RadioButton fx:id="toggleAddCardAfterCard" mnemonicParsing="false"
+                                                             text="after keyword"
+                                                             toggleGroup="$toggleGroupAddCardPosition"
+                                                             GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                                                <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="3"
+                                                      GridPane.halignment="CENTER" GridPane.rowIndex="6">
+                                                    <children>
+                                                        <Button fx:id="buttonAddCard" disable="true"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonAddCard" text="Add card"/>
+                                                        <CheckBox fx:id="checkBoxAddCardUpdate" mnemonicParsing="false"
+                                                                  text="Update card if keyword exists"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                                <Tab closable="false" text="Remove card">
+                                    <content>
+                                        <GridPane hgap="5.0" vgap="5.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="10.0"/>
+                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10.0"/>
+                                                <RowConstraints minHeight="10.0"/>
+                                                <RowConstraints minHeight="10.0"/>
+                                            </rowConstraints>
+                                            <children>
+                                                <RadioButton fx:id="toggleRemoveCardKeyword" mnemonicParsing="false"
+                                                             selected="true" text="keyword">
+                                                    <toggleGroup>
+                                                        <ToggleGroup fx:id="toggleGroupRemoveCard"/>
+                                                    </toggleGroup>
+                                                </RadioButton>
+                                                <TextField fx:id="textFieldRemoveCardKeyword" GridPane.columnIndex="1"/>
+                                                <RadioButton fx:id="toggleRemoveCardIndex" mnemonicParsing="false"
+                                                             text="index" toggleGroup="$toggleGroupRemoveCard"
+                                                             GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textFieldRemoveCardIndex" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="1"/>
+                                                <Button fx:id="buttonRemoveCard" disable="true" mnemonicParsing="false"
+                                                        onAction="#handleClickButtonRemoveCard" text="Remove card"
+                                                        GridPane.columnSpan="2" GridPane.halignment="CENTER"
+                                                        GridPane.rowIndex="2"/>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                                <Tab closable="false" text="Change card">
+                                    <content>
+                                        <GridPane hgap="5.0" vgap="5.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="10.0"/>
+                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <TextField fx:id="textFieldChangeCardKeyword" GridPane.columnIndex="1"
+                                                           GridPane.valignment="CENTER"/>
+                                                <TextField fx:id="textFieldChangeCardNewKeyword"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textFieldChangeCardRValue" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="2"/>
+                                                <TextField fx:id="textFieldChangeCardIValue" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="3"/>
+                                                <TextField fx:id="textFieldChangeCardComment" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="4"/>
+                                                <TextField fx:id="textFieldChangeCardIndex" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="5"/>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT"
+                                                      GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxChangeCardNewKeyword"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="New keyword:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="2">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxChangeCardRValue"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Real/Literal value:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT"
+                                                      GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxChangeCardIValue"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Imaginary value:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.halignment="RIGHT"
+                                                      GridPane.rowIndex="4">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxChangeCardComment"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Comment:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="5">
+                                                    <children>
+                                                        <CheckBox fx:id="checkBoxChangeCardIndex"
+                                                                  mnemonicParsing="false"/>
+                                                        <Label text="Index:">
+                                                            <font>
+                                                                <Font name="System Bold" size="12.0"/>
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="2"
+                                                      GridPane.halignment="CENTER" GridPane.rowIndex="6">
+                                                    <children>
+                                                        <Button fx:id="buttonChangeCard" disable="true"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonChangeCard"
+                                                                text="Change card"/>
+                                                        <CheckBox fx:id="checkBoxChangeCardDelete"
+                                                                  mnemonicParsing="false"
+                                                                  text="Delete new keyword card if exists"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                                <Tab closable="false" text="Concatenating">
+                                    <content>
+                                        <GridPane hgap="5.0" vgap="5.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="95.0"/>
+                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                                                <ColumnConstraints minWidth="95.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label alignment="TOP_LEFT" text="Keyword value:"
+                                                       GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label text="String value:" GridPane.halignment="RIGHT"
+                                                       GridPane.rowIndex="2">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label text="Values:" GridPane.halignment="RIGHT" GridPane.rowIndex="3"
+                                                       GridPane.rowSpan="3">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <TextField fx:id="textFieldConcatenateKeyword" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2" GridPane.valignment="CENTER"/>
+                                                <TextField fx:id="textFieldConcatenateKeywordValue"
+                                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                <Button fx:id="buttonConcatenateAddKeywordValue"
+                                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                                        onAction="#handleClickButtonConcatenateAddKeywordValue"
+                                                        text="Add to values" GridPane.columnIndex="2"
+                                                        GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textFieldConcatenateString" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="2"/>
+                                                <Button fx:id="buttonConcatenateAddString"
+                                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                                        onAction="#handleClickButtonConcatenateAddString"
+                                                        text="Add to values" GridPane.columnIndex="2"
+                                                        GridPane.rowIndex="2"/>
+                                                <ListView fx:id="listViewConcatenationValues" GridPane.columnIndex="1"
+                                                          GridPane.rowIndex="3" GridPane.rowSpan="3"/>
+                                                <Button fx:id="buttonConcatenateMoveUp" disable="true"
+                                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                                        onAction="#handleClickButtonConcatenateMoveUp" text="Move up"
+                                                        GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+                                                <Button fx:id="buttonConcatenateMoveDown" disable="true"
+                                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                                        onAction="#handleClickButtonConcatenateMoveDown"
+                                                        text="Move down" GridPane.columnIndex="2"
+                                                        GridPane.rowIndex="4"/>
+                                                <Button fx:id="buttonConcatenateRemove" disable="true"
+                                                        maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                                        onAction="#handleClickButtonConcatenateRemove" text="Remove"
+                                                        GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+                                                <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="3"
+                                                      GridPane.halignment="CENTER" GridPane.rowIndex="6">
+                                                    <children>
+                                                        <Button fx:id="buttonConcatenate" disable="true"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonConcatenate"
+                                                                text="Concatenate"/>
+                                                        <CheckBox fx:id="checkBoxConcatenateUpdate"
+                                                                  mnemonicParsing="false"
+                                                                  text="Update card if keyword exists"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                                <Tab closable="false" text="Shifting">
+                                    <content>
+                                        <GridPane hgap="5.0" vgap="5.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="70.0"/>
+                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0"/>
+                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                                <RowConstraints/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label alignment="TOP_LEFT" text="Years:" GridPane.halignment="RIGHT"
+                                                       GridPane.rowIndex="1">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label text="Months:" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label text="Days:" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label text="Hours:" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <TextField fx:id="textFieldShiftKeyword" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="3" GridPane.valignment="CENTER"/>
+                                                <TextField fx:id="textFieldShiftYears" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textFieldShiftMonths" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="2"/>
+                                                <TextField fx:id="textFieldShiftDays" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="3"/>
+                                                <TextField fx:id="textFieldShiftHours" GridPane.columnIndex="1"
+                                                           GridPane.rowIndex="4"/>
+                                                <Label alignment="TOP_LEFT" text="Minutes:" GridPane.columnIndex="2"
+                                                       GridPane.rowIndex="1">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label alignment="TOP_LEFT" text="Seconds:" GridPane.columnIndex="2"
+                                                       GridPane.rowIndex="2">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label alignment="TOP_LEFT" text="Milliseconds:"
+                                                       GridPane.columnIndex="2" GridPane.rowIndex="3">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <Label alignment="TOP_LEFT" text="Microseconds:"
+                                                       GridPane.columnIndex="2" GridPane.rowIndex="4">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <TextField fx:id="textFieldShiftMinutes" GridPane.columnIndex="3"
+                                                           GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textFieldShiftSeconds" GridPane.columnIndex="3"
+                                                           GridPane.rowIndex="2"/>
+                                                <TextField fx:id="textFieldShiftMilliseconds" GridPane.columnIndex="3"
+                                                           GridPane.rowIndex="3"/>
+                                                <TextField fx:id="textFieldShiftMicroseconds" GridPane.columnIndex="3"
+                                                           GridPane.rowIndex="4"/>
+                                                <Button fx:id="buttonShift" disable="true" mnemonicParsing="false"
+                                                        onAction="#handleClickButtonShift" text="Shift"
+                                                        GridPane.columnSpan="4" GridPane.halignment="CENTER"
+                                                        GridPane.rowIndex="5"/>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                                <Tab closable="false" text="JD">
+                                    <content>
+                                        <GridPane hgap="5.0" vgap="5.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints minWidth="10.0"/>
+                                                <ColumnConstraints minWidth="10.0"/>
+                                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+                                                <RowConstraints minHeight="10.0"/>
+                                                <RowConstraints minHeight="10.0"/>
+                                                <RowConstraints minHeight="10.0"/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Label alignment="TOP_LEFT" text="Keyword:" GridPane.halignment="RIGHT">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <TextField fx:id="textFieldJDKeyword" GridPane.columnIndex="1"
+                                                           GridPane.columnSpan="2"/>
+                                                <TextField fx:id="textFieldJDSourceKeyword" GridPane.columnIndex="2"
+                                                           GridPane.rowIndex="1"/>
+                                                <TextField fx:id="textFieldJDSourceDatetime" GridPane.columnIndex="2"
+                                                           GridPane.rowIndex="2"/>
+                                                <RadioButton fx:id="toggleJDSourceKeyword" mnemonicParsing="false"
+                                                             selected="true" text="keyword" GridPane.columnIndex="1"
+                                                             GridPane.rowIndex="1">
+                                                    <toggleGroup>
+                                                        <ToggleGroup fx:id="toggleGroupJD"/>
+                                                    </toggleGroup>
+                                                </RadioButton>
+                                                <RadioButton fx:id="toggleJDSourceDatetime" mnemonicParsing="false"
+                                                             text="date time" toggleGroup="$toggleGroupJD"
+                                                             GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                                <Label alignment="TOP_LEFT" text="Source:" GridPane.halignment="RIGHT"
+                                                       GridPane.rowIndex="1" GridPane.rowSpan="2">
+                                                    <font>
+                                                        <Font name="System Bold" size="12.0"/>
+                                                    </font>
+                                                </Label>
+                                                <HBox alignment="CENTER" spacing="5.0" GridPane.columnSpan="3"
+                                                      GridPane.halignment="CENTER" GridPane.rowIndex="3">
+                                                    <children>
+                                                        <Button fx:id="buttonAddJD" disable="true"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonAddJD" text="Add JD"/>
+                                                        <CheckBox fx:id="checkBoxJDUpdate" mnemonicParsing="false"
+                                                                  text="Update card if keyword exists"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </GridPane>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                        </TabPane>
+                        <Separator/>
+                        <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                            <tabs>
+                                <Tab closable="false" text="Log">
+                                    <content>
+                                        <VBox>
+                                            <children>
+                                                <TextArea fx:id="textAreaLog" editable="false" text="(Empty)"
+                                                          wrapText="true" VBox.vgrow="ALWAYS"/>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </VBox>
+                                    </content>
+                                </Tab>
+                                <Tab closable="false" text="Operation queue">
+                                    <content>
+                                        <HBox spacing="5.0">
+                                            <children>
+                                                <ListView fx:id="listViewOperationQueue" HBox.hgrow="ALWAYS"/>
+                                                <VBox alignment="CENTER" minWidth="95.0" spacing="5.0">
+                                                    <children>
+                                                        <Button fx:id="buttonOperationQueueMoveUp" disable="true"
+                                                                maxWidth="1.7976931348623157E308"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonOperationQueueMoveUp"
+                                                                text="Move up"/>
+                                                        <Button fx:id="buttonOperationQueueMoveDown" disable="true"
+                                                                maxWidth="1.7976931348623157E308"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonOperationQueueMoveDown"
+                                                                text="Move down"/>
+                                                        <Button fx:id="buttonOperationQueueRemove" disable="true"
+                                                                maxWidth="1.7976931348623157E308"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonOperationQueueRemove"
+                                                                text="Remove"/>
+                                                        <Button fx:id="buttonOperationQueueShow" disable="true"
+                                                                maxWidth="1.7976931348623157E308"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleClickButtonOperationQueueShowFiles"
+                                                                text="Show files"/>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                            <padding>
+                                                <Insets top="5.0"/>
+                                            </padding>
+                                        </HBox>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                        </TabPane>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+        <HBox spacing="5.0">
+            <children>
+                <Button fx:id="buttonExecute" maxWidth="1.7976931348623157E308" minWidth="250.0" mnemonicParsing="false"
+                        onAction="#handleClickButtonExecute" text="Execute queued operations" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="buttonExecuteQuit" defaultButton="true" maxWidth="1.7976931348623157E308"
+                        minWidth="250.0" mnemonicParsing="false" onAction="#handleClickButtonExecuteQuit"
+                        text="Execute queued operations and quit" HBox.hgrow="ALWAYS"/>
+                <Button cancelButton="true" maxWidth="1.7976931348623157E308" minWidth="250.0" mnemonicParsing="false"
+                        onAction="#quitWithConfirmation" text="Quit" HBox.hgrow="ALWAYS"/>
+            </children>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+    </padding>
 </VBox>

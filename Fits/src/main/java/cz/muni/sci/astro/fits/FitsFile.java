@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Jan Hlava, 395986
  */
-public class FitsFile {
+public class FitsFile implements AutoCloseable {
     public static final int KEYWORD_LENGTH = 8;
     public static final int CARD_LENGTH = 80;
     public static final int BLOCK_LENGTH = 2880;
@@ -159,20 +159,6 @@ public class FitsFile {
     }
 
     /**
-     * Closes FITS file
-     */
-    public void closeFile() {
-        try {
-            raf.close();
-        } catch (IOException ignored) {
-        } finally {
-            file = null;
-            raf = null;
-            HDUs.clear();
-        }
-    }
-
-    /**
      * Try to save FITS file (first, you need setup new cards in HDUs). It creates backup in case of failure (return value is false)
      *
      * @return true if saving was successful, false if saving failed
@@ -239,5 +225,20 @@ public class FitsFile {
     @Override
     public int hashCode() {
         return getFilename().hashCode();
+    }
+
+    /**
+     * Closes FITS file
+     */
+    @Override
+    public void close() {
+        try {
+            raf.close();
+        } catch (IOException ignored) {
+        } finally {
+            file = null;
+            raf = null;
+            HDUs.clear();
+        }
     }
 }

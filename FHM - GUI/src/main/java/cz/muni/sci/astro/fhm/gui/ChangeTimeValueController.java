@@ -6,8 +6,8 @@ import cz.muni.sci.astro.fits.FitsCardDateValue;
 import cz.muni.sci.astro.fits.FitsCardDateValueUnknownFormatException;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 

@@ -1,9 +1,14 @@
 package cz.muni.sci.astro.fhm.cli;
 
 import cz.muni.sci.astro.fhm.core.MultipleOperationsRunner;
-import cz.muni.sci.astro.fits.*;
+import cz.muni.sci.astro.fits.FitsCard;
+import cz.muni.sci.astro.fits.FitsException;
+import cz.muni.sci.astro.fits.FitsFile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +37,11 @@ public class CommandsInterpreter {
     private final Pattern commandValidatorPattern;
     private final String filename;
     private final List<String> commands;
-    private final List<FitsFile> openedFiles;
-    private final List<FitsFile> filteredFiles;
+    private final List<String> openedFiles;
+    private final List<String> filteredFiles;
     private Matcher matcherParam;
     private boolean allOK = true;
+    private MultipleOperationsRunner operationsRunner;
 
     /**
      * Creates new instances of this class
@@ -52,6 +58,7 @@ public class CommandsInterpreter {
         commands = new ArrayList<>();
         openedFiles = new ArrayList<>();
         filteredFiles = new ArrayList<>();
+        operationsRunner = new MultipleOperationsRunner(this::printOK, this::printError);
     }
 
     /**
@@ -105,7 +112,6 @@ public class CommandsInterpreter {
      * Processes and executes commands
      */
     private void processCommands() {
-        MultipleOperationsRunner operationsRunner = new MultipleOperationsRunner(this::printOK, this::printError);
         for (String command : commands) {
             printOK("Command: ", command);
             List<String> params = new ArrayList<>();
@@ -272,8 +278,8 @@ public class CommandsInterpreter {
             }
             printOK();
         }
-        printOK("Saving files on exit:");
-        saveAndCloseFiles();
+        printOK("Executing operations on exit:");
+        executeOperations();
     }
 
     /**
@@ -285,11 +291,10 @@ public class CommandsInterpreter {
         if (filename.indexOf(".\\") == 0) {
             filename = filename.substring(2);
         }
-        try {
-            FitsFile fits = new FitsFile(new File(filename));
-            if (!openedFiles.contains(fits)) {
-                openedFiles.add(fits);
-                filteredFiles.add(fits);
+        try (FitsFile ignored = new FitsFile(new File(filename))) {
+            if (!openedFiles.contains(filename)) {
+                openedFiles.add(filename);
+                filteredFiles.add(filename);
                 printOK("File \"", filename, "\" was opened.");
             } else {
                 printError("File \"", filename, "\" is already opened.");
@@ -334,7 +339,7 @@ public class CommandsInterpreter {
      */
     private void filterFilename(String filter, boolean usePreviousFilters) {
         printOK("Filtering files by filename: ", filter);
-        List<FitsFile> files = new ArrayList<>();
+        List<String> files = new ArrayList<>();
         if (usePreviousFilters) {
             files.addAll(filteredFiles);
         } else {
@@ -342,11 +347,12 @@ public class CommandsInterpreter {
         }
         filteredFiles.clear();
         PathMatcher filenameMatcher = FileSystems.getDefault().getPathMatcher("glob:" + filter);
-        for (FitsFile file : files) {
-            if (filenameMatcher.matches(Paths.get(file.getFilename()))) {
-                filteredFiles.add(file);
+        for (String filename : files) {
+            File file = new File(filename);
+            if (filenameMatcher.matches(Paths.get(file.getName()))) {
+                filteredFiles.add(filename);
             } else {
-                printOK("File \"", file.getFilename(), "\" does not match filter.");
+                printOK("File \"", file.getName(), "\" does not match filter.");
             }
         }
         printFilteringResult();
@@ -362,26 +368,29 @@ public class CommandsInterpreter {
         StringJoiner stringJoiner = new StringJoiner(", ", "Filtering files by keywords: ", "");
         keywords.forEach(stringJoiner::add);
         printOK(stringJoiner.toString());
-        List<FitsFile> files = new ArrayList<>();
+        List<String> files = new ArrayList<>();
         if (usePreviousFilters) {
             files.addAll(filteredFiles);
         } else {
             files.addAll(openedFiles);
         }
         filteredFiles.clear();
-        for (FitsFile file : files) {
-            boolean containsAll = true;
-            for (String keyword : keywords) {
-                if (file.getCardsWithKeyword(keyword).isEmpty()) {
-                    containsAll = false;
-                    break;
+        for (String filename : files) {
+            try (FitsFile fitsFile = new FitsFile(new File(filename))) {
+                boolean containsAll = true;
+                for (String keyword : keywords) {
+                    if (fitsFile.getCardsWithKeyword(keyword).isEmpty()) {
+                        containsAll = false;
+                        break;
+                    }
                 }
-            }
-            if (containsAll) {
-                filteredFiles.add(file);
-            } else {
-                printOK("File \"", file.getFilename(), "\" does not match filter.");
-            }
+                if (containsAll) {
+                    filteredFiles.add(filename);
+                } else {
+                    printOK("File \"", fitsFile.getFilename(), "\" does not match filter.");
+                }
+            } catch (FitsException ignored) {
+            } // Check for Fits file has been already done
         }
         printFilteringResult();
     }
@@ -395,20 +404,23 @@ public class CommandsInterpreter {
      */
     private void filterKeywordRValue(String keyword, String rValue, boolean usePreviousFilters) {
         printOK("Filtering files by containment of keyword ", keyword, " and real value \"", rValue, "\".");
-        List<FitsFile> files = new ArrayList<>();
+        List<String> files = new ArrayList<>();
         if (usePreviousFilters) {
             files.addAll(filteredFiles);
         } else {
             files.addAll(openedFiles);
         }
         filteredFiles.clear();
-        for (FitsFile file : files) {
-            List<FitsCard> cards = file.getCardsWithKeyword(keyword);
-            if (!cards.isEmpty() && cards.get(0).getRValueString().equals(rValue)) {
-                filteredFiles.add(file);
-            } else {
-                printOK("File \"", file.getFilename(), "\" does not match filter.");
-            }
+        for (String filename : files) {
+            try (FitsFile fitsFile = new FitsFile(new File(filename))) {
+                List<FitsCard> cards = fitsFile.getCardsWithKeyword(keyword);
+                if (!cards.isEmpty() && cards.get(0).getRValueString().equals(rValue)) {
+                    filteredFiles.add(filename);
+                } else {
+                    printOK("File \"", fitsFile.getFilename(), "\" does not match filter.");
+                }
+            } catch (FitsException ignored) {
+            } // Check for Fits file has been already done
         }
         printFilteringResult();
     }
@@ -422,20 +434,23 @@ public class CommandsInterpreter {
      */
     private void filterKeywordIValue(String keyword, String iValue, boolean usePreviousFilters) {
         printOK("Filtering files by containment of keyword ", keyword, " and imaginary value \"", iValue, "\".");
-        List<FitsFile> files = new ArrayList<>();
+        List<String> files = new ArrayList<>();
         if (usePreviousFilters) {
             files.addAll(filteredFiles);
         } else {
             files.addAll(openedFiles);
         }
         filteredFiles.clear();
-        for (FitsFile file : files) {
-            List<FitsCard> cards = file.getCardsWithKeyword(keyword);
-            if (!cards.isEmpty() && cards.get(0).getIValueString().equals(iValue)) {
-                filteredFiles.add(file);
-            } else {
-                printOK("File \"", file.getFilename(), "\" does not match filter.");
-            }
+        for (String filename : files) {
+            try (FitsFile fitsFile = new FitsFile(new File(filename))) {
+                List<FitsCard> cards = fitsFile.getCardsWithKeyword(keyword);
+                if (!cards.isEmpty() && cards.get(0).getIValueString().equals(iValue)) {
+                    filteredFiles.add(filename);
+                } else {
+                    printOK("File \"", fitsFile.getFilename(), "\" does not match filter.");
+                }
+            } catch (FitsException ignored) {
+            } // Check for Fits file has been already done
         }
         printFilteringResult();
     }
@@ -483,23 +498,10 @@ public class CommandsInterpreter {
     }
 
     /**
-     * Saves and closes opened files
+     * Executes operations
      */
-    private void saveAndCloseFiles() {
-        for (FitsFile file : openedFiles) {
-            List<String> problems = file.checkReadyToSave();
-            if (problems.isEmpty()) {
-                if (!file.saveFile()) {
-                    printError("Saving file \"", file.getFilename(), "\" failed.");
-                } else {
-                    printOK("File \"", file.getFilename(), "\" was successfully saved.");
-                }
-            } else {
-                printError("Cannot save file \"", file.getFilename(), "\" due errors:");
-                problems.forEach(this::printError);
-            }
-            file.closeFile();
-        }
+    private void executeOperations() {
+        operationsRunner.executeOperations();
         openedFiles.clear();
         filteredFiles.clear();
     }
@@ -509,8 +511,8 @@ public class CommandsInterpreter {
      */
     private void handleOpenedFilesBeforeOpen() {
         if (!openedFiles.isEmpty()) {
-            printOK("Saving previously opened files before opening new ones.");
-            saveAndCloseFiles();
+            printOK("Executing operations on opened files before opening new ones.");
+            executeOperations();
         }
     }
 
@@ -554,7 +556,7 @@ public class CommandsInterpreter {
     private void printFilteringResult() {
         if (!filteredFiles.isEmpty()) {
             StringJoiner stringJoiner = new StringJoiner("\", \"", "Result of applying filter: \"", "\"");
-            filteredFiles.forEach(file -> stringJoiner.add(file.getFilename()));
+            filteredFiles.forEach(file -> stringJoiner.add(new File(file).getName()));
             printOK(stringJoiner.toString());
         } else {
             printOK("Result of applying filter is empty.");
