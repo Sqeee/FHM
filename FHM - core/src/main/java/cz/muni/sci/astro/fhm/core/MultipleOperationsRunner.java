@@ -287,6 +287,7 @@ public class MultipleOperationsRunner {
                 printerError.print("Cannot save file \"", fitsFile.getFilename(), "\" due errors:");
                 problems.forEach(printerError::print);
             }
+            fitsFile.close();
         }
         operations.clear();
         filesForOperations.clear();
