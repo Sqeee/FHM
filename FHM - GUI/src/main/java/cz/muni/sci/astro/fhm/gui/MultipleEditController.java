@@ -329,7 +329,7 @@ public class MultipleEditController {
         printOK("Executing operations on files.");
         allOK = true;
         operationsRunner.executeOperations();
-        listViewOperationQueue.getItems().clear();
+        listViewOperationQueue.setItems(null);
         result = allOK;
         refreshLogs();
         if (result) {
