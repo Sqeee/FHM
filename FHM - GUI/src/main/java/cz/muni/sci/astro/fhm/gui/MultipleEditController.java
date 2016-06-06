@@ -325,7 +325,9 @@ public class MultipleEditController {
     @FXML
     private boolean handleClickButtonExecute() {
         boolean result;
+        printOK();
         printOK("Executing operations on files.");
+        allOK = true;
         operationsRunner.executeOperations();
         listViewOperationQueue.getItems().clear();
         result = allOK;

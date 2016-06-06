@@ -113,7 +113,7 @@ public class SelectFiles2Controller {
         conditions = conditions.replaceAll("(\\w*)-(\\w*)[ ]?([!=]=)[ ]?([\\w ]*)", "$1__$2 $3 \"$4\"");
 
         ScriptEngine engine;
-        for (String name : listViewSelectedFiles.getSelectionModel().getSelectedItems()) {
+        for (String name : listViewSelectedFiles.getItems()) {
             try (FitsFile file = new FitsFile(new File(name))) {
                 boolean accepted = true;
                 for (int i = 0; i < file.getCountHDUs(); i++) {
