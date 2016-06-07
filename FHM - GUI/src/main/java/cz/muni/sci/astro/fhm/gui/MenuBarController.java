@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuBar;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -64,6 +65,28 @@ public class MenuBarController {
             converter.setMaxHeight(178);
             GUIHelpers.setIcons(converter);
             converter.show();
+        } catch (IOException ignored) {
+        }
+    }
+
+    /**
+     * Handles click on menu item Help - shows window with help
+     */
+    @FXML
+    private void handleClickMenuItemHelp() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Help.fxml"));
+            AnchorPane anchorPane = loader.load();
+            Stage help = new Stage();
+            help.setTitle("Help");
+            Scene scene = new Scene(anchorPane);
+            help.setScene(scene);//TODO
+            /*converter.setMinWidth(616);
+            converter.setMinHeight(178);
+            converter.setMaxWidth(616);
+            converter.setMaxHeight(178);*/
+            GUIHelpers.setIcons(help);
+            help.show();
         } catch (IOException ignored) {
         }
     }

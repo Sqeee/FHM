@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="author" content="Jan Hlava"/>
+    <meta name="description" content="Help section for application FHM (Fits header modifier)"/>
+    <meta name="keywords" content="jan hlava, hlava, fhm, fits, 395986"/>
+    <meta name="robots" content="ALL"/>
+    <meta name="revisit-after" content="1 days"/>
+    <title>FHM - help</title>
+</head>
+<body>
+<h1 id="content">Help content</h1>
+<ul>
+    <li>
+        <a href="help.html#gui">GUI application</a>
+        <ul>
+            <li><a href="help.html#select1">Form - Select files 1</a></li>
+            <li><a href="help.html#select2">Form - Select files 2 - advanced filtering</a></li>
+            <li>
+                <a href="help.html#multiple">Form - Multiple edit</a>
+                <ul>
+                    <li><a href="help.html#add">Operation - Add card</a></li>
+                    <li><a href="help.html#remove">Operation - Remove card</a></li>
+                    <li><a href="help.html#change">Operation - Change card</a></li>
+                    <li><a href="help.html#concatenate">Operation - Concatenating</a></li>
+                    <li><a href="help.html#shift">Operation - Shifting</a></li>
+                    <li><a href="help.html#jd">Operation - JD</a></li>
+                </ul>
+            </li>
+            <li><a href="help.html#single">Form - Single edit</a></li>
+            <li><a href="help.html#changedatetime">Form - Change datetime value</a></li>
+            <li><a href="help.html#concatenationmanager">Form - Concatenation manager</a></li>
+            <li><a href="help.html#converter">Form - Converter</a></li>
+            <li><a href="help.html#menubar">Menu bar</a></li>
+        </ul>
+    </li>
+    <li><a href="help.html#cli">CLI application</a></li>
+    <li>
+        <a href="help.html#arguments">Arguments</a>
+        <ul>
+            <li><a href="help.html#index">Index</a></li>
+            <li><a href="help.html#datetimeformat">Date time formats</a></li>
+        </ul>
+    </li>
+</ul>
+
+<h2 id="gui">GUI application [<a href="help.html#content">Back to content</a>]</h2>
+
+<p>To run application you need Java version 8 with JavaFX (minimal version is 8.0.40). For starting application use this
+    command:</p>
+
+<p style="text-align: center;"><code>java -jar FHM_GUI.jar</code></p>
+
+<h3 id="select1">Form - Select files 1 [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>It is first form in GUI version of FHM. First in this form you select directory containing Fits files. Your last
+    selected directory is suggested after click on according button (Choose a directory...). It is also possible to
+    write file system address of directory, red color means your path is invalid (directory does not exist).</p>
+
+<p>After choosing valid directory, list of Fits files appears. You can select all or deselect all files by buttons.
+    Keyboards shortcuts are also possible (for example <i>CTRL + A</i> select all files, pressing <i>CTRL</i> and
+    clicking on file names in the same time select multiple files).</p>
+
+<p>It is possible to use file name filtering. After pressing <i>ENTER</i> in corresponding text field or click button
+    Apply filter, list of files is updated and contains only files that meets filename filter. If you want to cancel
+    filter, just leave empty filter text field and apply filter. For filtering you can use globbing - (? - replaces any
+    single character, * - replaces any count of characters; example - a?c* -&gt; accepts abc.fit or abc, not accepts
+    abbc.fit).</p>
+
+<p>If you select all files, which you want to select, you can continue by pressing Continue button to next form - <a
+        href="help.html#select2">Select files 2 - advanced filtering</a>.</p>
+
+<h3 id="select2">Form - Select files 2 - advanced filtering [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>This form provides advanced filtering - by content of Fits files. You can skip this form, by default all files from
+    previous form are selected, so you can click on Continue button for continue to next form <a
+            href="help.html#multiple">Multiple edit</a>.</p>
+
+<p>Selecting files can be done manually or by using advanced filtering. You just type keyword and then equality sign =
+    or non equality sign != and his value. For value consisting of multiple words it is not need to use quotation marks.
+    For multiple conditions you can use & (both conditions must be true) or | (at least one condition must be true), for
+    grouping conditions can be used parenthesis.</p>
+
+<p>After writing conditions, click on button Filter files. Application checks conditions and selects files that meet
+    conditions. If no file meets the conditions, then no file is selected.</p>
+
+<p>If files are selected, then after click on button Continue <a href="help.html#multiple">multiple edit</a> can start.
+</p>
+
+<h3 id="multiple">Form - Multiple edit [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>You can specify operation which should be done on selected files in this form. There is list with files that can be
+    selected (manually or with buttons) on the left side . On the right side can be specified operation in the upper
+    section or can be checked log of executed operations or viewed queue of not executed operations.</p>
+
+<p>Every operation goes first to queue, where you can change order of operations, removes them or show affected files by
+    operation. Then it is necessary to execute operations in queue. It can be done by buttons - just execute operations
+    or execute them and exit from application. If you try quit and you have any operation in queue, then confirmation is
+    showed.</p>
+
+<p>After start of executing operations all results are saved to log. Log in application has limited count of displayed
+    characters, full log is saved in directory where JAR files is located. Name of log is <i>multiple_operations.log</i>.
+    About success (or not) of executed operations informs popup window.</p>
+
+<p>Operations can be prepared in tabs on upper right side. Operations have mandatory and optional arguments. If you do
+    not specified all mandatory arguments, then error alert popups. Optional arguments have checkbox. If it is checked,
+    then argument will be used for operation, if not, then argument will not be used. When you start typing in optional
+    text field, then is automatically checked.</p>
+
+<h4 id="add">Operation - Add card [<a href="help.html#content">Back to content</a>]</h4>
+
+<p>In this operation these values can be specified: keyword (mandatory), real/literal value, imaginary value, comment,
+    position. It can be also specified if original keyword should be updated in case of new keyword is already in
+    header, otherwise throws error. If position is not specified, then new card is inserted before keyword End. Position
+    has two options - adds card after keyword or to given <a href="help.html#index">index</a>. Result of this operation
+    is new (or updated in specified case) card in header.</p>
+
+<h4 id="remove">Operation - Remove card [<a href="help.html#content">Back to content</a>]</h4>
+
+<p>This operation removes specified card from header. There are two options how to remove card - by <a
+        href="help.html#index">index</a> or by keyword.</p>
+
+<h4 id="change">Operation - Change card [<a href="help.html#content">Back to content</a>]</h4>
+
+<p>With this operation cards can be changed. You must specified keyword of card, which should be updated and then
+    values, that should be updated - new keyword, real/literal value, imaginary value, comment and <a
+            href="help.html#index">index</a>. Also option deleting original card, that have new keyword, can be
+    specified.</p>
+
+<h4 id="concatenate">Operation - Concatenating [<a href="help.html#content">Back to content</a>]</h4>
+
+<p>Concatenating can be done by concatenating strings and keyword values. Result of concatenation is stored to given
+    keyword. For concatenation at least one value must be specified. Entering values is done by according text fields,
+    write value and then by button or pressing key <i>ENTER</i> value is added. Before completing operation it is
+    possible to change order of values or remove value. It can be specified if existing card with given keyword should
+    be updated or not.</p>
+
+<h4 id="shift">Operation - Shifting [<a href="help.html#content">Back to content</a>]</h4>
+
+<p>Date time value in card with given keyword can be shifted by this operation. You must just specified keyword and at
+    least one date or time interval. Allowed intervals are: years, months, days, hours, minutes, seconds, milliseconds
+    and microseconds.</p>
+
+<h4 id="jd">Operation - JD [<a href="help.html#content">Back to content</a>]</h4>
+
+<p>This application allows computing JD (julian day) from date time value. You must specify to which keyword should be
+    computed JD stored (and if should be override in case of its presence). Then you must choose source - keyword with
+    date time value or write your own date time value in given <a href="help.html#datetimeformat">format</a>.</p>
+
+<h3 id="single">Form - Single edit [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>This form provides a way of editing file in user friendly view - you can view content and change it. If you want use
+    single editing, then you must working with 50 or less files (for more files this type of editing is not effective)
+    and switch modes in <a href="help.html#menubar">menu bar</a> - modes. By default form opens one tab for one file, so
+    you can edit whole header. You can change to editing one keyword across files.</p>
+
+<p>In table you can change values by double tap on cell. If you want to commit change, then press <i>ENTER</i> or click
+    into another cell. If you want to cancel change, then press <i>Escape</i>. All changes must be saved, they are not
+    auto saved. When zou are leaving this form, confirmation window appears.</p>
+
+<p>Column with data type is only for information, which data type keyword should have. Other columns can be edited.
+    First column depends on selected mode - keyword for editing whole header or file for editing keywords across
+    files.</p>
+
+<p>Every card can be moved down or up with button under table. It is simple, just select card and choose direction.
+    Selected card can be also deleted with removal button. Adding new card is done by button Add new card. If no card is
+    selected, then new card is inserted before END keyword. If card is selected, then new card is inserted before
+    selected card. All operations are available in context menu that shows after right click on card.</p>
+
+<p>Date time values can be changed by menu item <i>Change date time value</i> in context menu (shows after right click
+    on card). It shows <a href="help.html#changedatetime">form</a> for changing date time values.</p>
+
+<p>If you want to concatenate values, you must run <a href="help.html#concatenationmanager">form with concatenation
+    manager</a> in <a href="help.html#menubar">menu bar</a> - tools.</p>
+
+<h3 id="changedatetime">Form - Change datetime value [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>This form is launched from single edit mode on date time value by menu item in context menu. It allows change date
+    time value. It remembers original value, which can be copied into actual value (it is modified date time value).</p>
+
+<p>Actual value can be converted by one click on according radio button to UTC date or to JD (Julian Day). For UTC date
+    it allows change of date format from list of <a href="help.html#datetimeformat">formats</a>. Change of format must
+    be confirmed by button Change format and then new format is copied into actual value text field.</p>
+
+<p>Changing format is not only function of this form. It allows also shifting date time values - you must write number
+    and change date or time interval (year, month, day, hour, minute, second, millisecond, microsecond).</p>
+
+<p>When you finish all changes you can click on button Use actual value, which changes original value in card. If you do
+    not want to change value, then button Use original value is your choice. And you are back to <a
+            href="help.html#single">single edit form</a>.</p>
+
+<h3 id="concatenationmanager">Form - Concatenation manager [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>This form is launched from <a href="help.html#menubar">menu bar</a> in <a href="help.html#single">single edit
+    form</a> if you have selected card. It makes concatenation from given values. Values can be specified on the left
+    side.</p>
+
+<p>You can choose cards and their values. If you are in mode of editing headers you can choose from keywords in header,
+    otherwise you can choose value from all files, where selected keyword are. Mode also affects target - card to which
+    result will be stored. You can also add custom value.</p>
+
+<p>After adding values, they show up in list on the right side. Their order can be changed, values can be removed or
+    copied. There is option to specify concatenation glue under list of values. The glue is used between values (if you
+    have values 5 and 4, glue is "is not", then result will be: 5 is not 4).</p>
+
+<p>When you finish with preparations, then you can cancel concatenation, show preview of concatenation or concatenate
+    values and result add to target card. For this use buttons on the bottom of the form. After ending concatenation you
+    are back to <a href="help.html#single">single edit form</a>.</p>
+
+<h3 id="converter">Form - Converter [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>This form is launched from <a href="help.html#menubar">menu bar</a> - tools. It allows converting UTC date to JD date
+    or vice versa. You have two text fields and button, one is for one type of date, second for the second. After click
+    on button, conversion is made and showed in result text field.</p>
+
+<h3 id="menubar">Menu bar [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>Menu bar allows general operations, which are divided into four groups - File, Modes, Tools, About.</p>
+
+<p><b>File</b> menu item contains menu item for Saving change or executing operations (only available in edit forms - <a
+        href="help.html#single">single</a> or <a href="help.html#multiple">multiple</a>). Exit is for exiting from
+    application.</p>
+
+<p><b>Modes</b> menu item contains switching modes - from <a href="help.html#multiple">multiple edit mode</a> to <a
+        href="help.html#single">single edit mode</a> and vice versa.</p>
+
+<p><b>Tools</b> menu item contains useful tools - <a href="help.html#converter">UTC Converter</a> and <a
+        href="help.html#concatenationmanager">Concatenation manager</a> (it is accessible only in <a
+        href="help.html#single">single edit mode</a> with selected card).</p>
+
+<p><b>About</b> menu item contains menu item Help (shows this Help section) and About (shows information about this
+    application).</p>
+
+<h2 id="cli">CLI application [<a href="help.html#content">Back to content</a>]</h2>
+
+<p>To run application you need Java version 8. For starting application use this command:</p>
+
+<p style="text-align: center;"><code>java -jar FHM_CLI.jar command.file</code></p>
+
+<p>Instead of <i>command.file</i> use your file with commands. If you do not know syntax of commands, you can ran CLI
+    application with help argument, example:</p>
+
+<p style="text-align: center;"><code>java -jar FHM_CLI.jar help</code></p>
+
+<p>It shows all commands and some brief information about them. If you need more information about some command, write
+    name of that command after help.</p>
+
+<p>Commands in file can be marked as ignored - commented. For this purpose use mark # at the beginning of line. Only one
+    command per one line is allowed.</p>
+
+<h2 id="arguments">Arguments [<a href="help.html#content">Back to content</a>]</h2>
+
+<p>Some arguments have special format or special functionality. It is written here.</p>
+
+<h3 id="index">Index [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>Indexing keyword can be positive (index 1 means first position) but also negative. Negative index means, that
+    counting position is reversed (-1 means last position). Index cannot be 0, counting starts at 1.</p>
+
+<h3 id="datetimeformat">Date time formats [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>Application accepts several date time formats for date time values. Here is a list of all formats with example for
+    date <b>2015-02-27 9:34:21</b></p>
+<ul>
+    <li><b>yyyy-MM-ddTHH:mm:ss</b> =&gt; 2015-02-27T09:34:21</li>
+    <li><b>yyyy-MM-dd HH:mm:ss</b> =&gt; 2015-02-27 09:34:21</li>
+    <li><b>yyyy-MM-ddTH:mm:ss</b> =&gt; 2015-02-27T9:34:21</li>
+    <li><b>yyyy-MM-dd H:mm:ss</b> =&gt; 2015-02-27 9:34:21</li>
+    <li><b>MM/dd/yyyyTHH:mm:ss</b> =&gt; 02/27/2015T09:34:21</li>
+    <li><b>MM/dd/yyyy HH:mm:ss</b> =&gt; 02/27/2015 09:34:21</li>
+    <li><b>MM/dd/yyyyTH:mm:ss</b> =&gt; 02/27/2015T9:34:21</li>
+    <li><b>MM/dd/yyyy H:mm:ss</b> =&gt; 02/27/2015 9:34:21</li>
+    <li><b>yyyy-MM-dd</b> =&gt; 2015-02-27</li>
+    <li><b>MM/dd/yyyy</b> =&gt; 02/27/2015</li>
+    <li><b>HH:mm:ss</b> =&gt; 09:34:21</li>
+    <li><b>H:mm:ss</b> =&gt; 9:34:21</li>
+</ul>
+
+</body>
+</html>

@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<MenuBar xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
-         fx:controller="cz.muni.sci.astro.fhm.gui.MenuBarController" fx:id="menuBar">
+<MenuBar xmlns:fx="http://javafx.com/fxml/1" fx:id="menuBar" xmlns="http://javafx.com/javafx/8.0.40"
+         fx:controller="cz.muni.sci.astro.fhm.gui.MenuBarController">
     <menus>
         <Menu mnemonicParsing="false" text="File">
             <items>
-                <MenuItem mnemonicParsing="false" text="Save" disable="true"/>
-                <MenuItem mnemonicParsing="false" text="Exit" onAction="#handleClickMenuItemExit"/>
+                <MenuItem disable="true" mnemonicParsing="false" text="Save"/>
+                <MenuItem mnemonicParsing="false" onAction="#handleClickMenuItemExit" text="Exit"/>
             </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Modes">
             <items>
-                <MenuItem mnemonicParsing="false" text="Switch to single operation mode" disable="true"/>
-                <MenuItem mnemonicParsing="false" text="Switch to multiple operation mode" disable="true"/>
+                <MenuItem disable="true" mnemonicParsing="false" text="Switch to single operation mode"/>
+                <MenuItem disable="true" mnemonicParsing="false" text="Switch to multiple operation mode"/>
             </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Tools">
             <items>
-                <MenuItem mnemonicParsing="false" text="UTC and JD converter"
-                          onAction="#handleClickMenuItemUTC_JD_Converter"/>
-                <MenuItem mnemonicParsing="false" text="Card values single card concatenation manager..."
-                          disable="true"/>
+                <MenuItem mnemonicParsing="false" onAction="#handleClickMenuItemUTC_JD_Converter"
+                          text="UTC and JD converter"/>
+                <MenuItem disable="true" mnemonicParsing="false"
+                          text="Card values single card concatenation manager..."/>
             </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
             <items>
-                <MenuItem mnemonicParsing="false" text="About" onAction="#handleClickMenuItemAbout"/>
+                <MenuItem mnemonicParsing="false" onAction="#handleClickMenuItemHelp" text="Help"/>
+                <MenuItem mnemonicParsing="false" onAction="#handleClickMenuItemAbout" text="About"/>
             </items>
         </Menu>
     </menus>
