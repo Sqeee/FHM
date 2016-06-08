@@ -2,6 +2,7 @@ package cz.muni.sci.astro.fhm.gui;
 
 import cz.muni.sci.astro.fits.FitsException;
 import cz.muni.sci.astro.fits.FitsFile;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -30,11 +31,10 @@ public class SelectFiles2Controller {
     /**
      * Prepares this form - set files to listView, set multiple selection, listener for disabling Continue button and select all files, set reference to MainViewController (important for setting content in MainView)
      *
-     * @param dir                directory, where files are located
-     * @param files              file list to working with
+     * @param files              list of files (with path) to working with
      * @param mainViewController MainViewController controller
      */
-    public void prepareWindow(String dir, List<String> files, MainViewController mainViewController) {
+    public void prepareWindow(List<String> files, MainViewController mainViewController) {
         this.mainViewController = mainViewController;
         listViewSelectedFiles.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         listViewSelectedFiles.setCellFactory(listView -> new ListCell<String>() {
@@ -46,20 +46,10 @@ public class SelectFiles2Controller {
                 }
             }
         });
-        List<String> errors = new ArrayList<>();
-        for (String filename : files) {
-            try (FitsFile ignored = new FitsFile(new File(dir + '/' + filename))) {
-                listViewSelectedFiles.getItems().add(dir + '/' + filename);
-            } catch (FitsException exc) {
-                errors.add("Error: cannot load file " + filename + " with reason " + exc.getMessage());
-            }
-        }
-        if (!errors.isEmpty()) {
-            GUIHelpers.showAlert(Alert.AlertType.ERROR, "Error", "Error occurred", String.join("\n", errors));
-        }
         listViewSelectedFiles.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {
             buttonContinue.setDisable(listViewSelectedFiles.getSelectionModel().getSelectedItems().isEmpty());
         });
+        listViewSelectedFiles.setItems(FXCollections.observableList(files));
         listViewSelectedFiles.getSelectionModel().selectAll();
     }
 

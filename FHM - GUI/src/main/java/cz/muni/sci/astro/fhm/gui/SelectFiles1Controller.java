@@ -1,5 +1,6 @@
 package cz.muni.sci.astro.fhm.gui;
 
+import cz.muni.sci.astro.fits.FitsException;
 import cz.muni.sci.astro.fits.FitsFile;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -85,9 +86,32 @@ public class SelectFiles1Controller {
      */
     @FXML
     protected void handleClickButtonContinue() {
-        prefs.put(PREFERENCE_DEFAULT_DIR, textFieldChooseDir.getText());
-        SelectFiles2Controller selectFiles2Controller = (SelectFiles2Controller) mainViewController.setContent("fxml/SelectFiles2.fxml");
-        selectFiles2Controller.prepareWindow(textFieldChooseDir.getText(), listViewFiles.getSelectionModel().getSelectedItems(), mainViewController);
+        String dir = textFieldChooseDir.getText();
+        prefs.put(PREFERENCE_DEFAULT_DIR, dir);
+        List<String> files = new ArrayList<>(listViewFiles.getSelectionModel().getSelectedItems().size());
+        List<String> errors = new ArrayList<>();
+        for (String filename : listViewFiles.getSelectionModel().getSelectedItems()) {
+            String path = dir + '/' + filename;
+            try (FitsFile ignored = new FitsFile(new File(path))) {
+                files.add(path);
+            } catch (FitsException exc) {
+                errors.add("Error: cannot load file " + filename + " with reason " + exc.getMessage());
+            }
+        }
+        if (!errors.isEmpty()) {
+            if (files.isEmpty()) {
+                GUIHelpers.showAlert(Alert.AlertType.ERROR, "Error with loading files", "None of selected files can be loaded.", String.join("\n", errors));
+            } else {
+                GUIHelpers.showAlert(Alert.AlertType.CONFIRMATION, "Error with loading files", "Some selected files cannot be loaded. Do you want to continue without them?", String.join("\n", errors)).ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        loadNextForm(files);
+                    }
+                });
+            }
+
+        } else {
+            loadNextForm(files);
+        }
     }
 
     /**
@@ -194,7 +218,7 @@ public class SelectFiles1Controller {
      */
     private List<String> listFiles(Path dir) {
         List<String> files = new ArrayList<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, filter);) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, filter)) {
             for (Path file : stream) {
                 if (Files.isRegularFile(file) && FitsFile.isFitsFile(file.toFile())) {
                     files.add(file.getFileName().toString());
@@ -204,6 +228,16 @@ public class SelectFiles1Controller {
             return null;
         }
         return files;
+    }
+
+    /**
+     * Loads next form - SelectFiles2
+     *
+     * @param files list of selected valid fits files with paths
+     */
+    private void loadNextForm(List<String> files) {
+        SelectFiles2Controller selectFiles2Controller = (SelectFiles2Controller) mainViewController.setContent("fxml/SelectFiles2.fxml");
+        selectFiles2Controller.prepareWindow(files, mainViewController);
     }
 
     /**
