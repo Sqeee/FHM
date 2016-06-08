@@ -3,6 +3,7 @@ package cz.muni.sci.astro.fhm.gui;
 import cz.muni.sci.astro.fhm.core.MultipleOperationsRunner;
 import cz.muni.sci.astro.fhm.core.Operation;
 import cz.muni.sci.astro.fhm.core.OperationShift;
+import cz.muni.sci.astro.fits.FitsCard;
 import cz.muni.sci.astro.fits.FitsCardDateValue;
 import cz.muni.sci.astro.fits.FitsCardDateValueUnknownFormatException;
 import javafx.application.Platform;
@@ -505,7 +506,7 @@ public class MultipleEditController {
         values.addAll(listViewConcatenationValues.getItems().stream().map(ConcatenateValue::toExport).collect(Collectors.toList()));
         boolean update = checkBoxConcatenateUpdate.isSelected();
         if (values.isEmpty()) {
-            GUIHelpers.showAlert(AlertType.INFORMATION, "Concatenating", "At least one concatenation value must be inserted.", "");
+            GUIHelpers.showAlert(AlertType.ERROR, "Concatenating", "At least one concatenation value must be inserted.", "");
             return;
         }
         printOperationAddQueueStartInfo("Preparing operation of concatenating values:");
@@ -527,6 +528,13 @@ public class MultipleEditController {
      */
     @FXML
     private void handleClickButtonConcatenateAddString() {
+        FitsCard card = new FitsCard();
+        card.setKeyword("CONCAT");
+        card.setRValue(textFieldConcatenateString.getText());
+        if (!card.validate().isEmpty()) {
+            GUIHelpers.showAlert(AlertType.ERROR, "Concatenating", "Value " + textFieldConcatenateString.getText() + " contains characters forbidden by FITS standard.", "");
+            return;
+        }
         ConcatenateValue value = new ConcatenateValue(ConcatenateType.STRING, textFieldConcatenateString.getText());
         listViewConcatenationValues.getItems().add(value);
     }
@@ -649,7 +657,7 @@ public class MultipleEditController {
             }
         }
         if (intervals.isEmpty()) {
-            GUIHelpers.showAlert(AlertType.INFORMATION, "Shifting", "At least one time parameter must be specified", "");
+            GUIHelpers.showAlert(AlertType.ERROR, "Shifting", "At least one time parameter must be specified", "");
             return;
         }
         printOperationAddQueueStartInfo("Preparing operation of shifting values:");

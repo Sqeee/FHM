@@ -2,6 +2,7 @@ package cz.muni.sci.astro.fhm.core;
 
 import cz.muni.sci.astro.fits.FitsCard;
 import cz.muni.sci.astro.fits.FitsFile;
+import cz.muni.sci.astro.fits.FitsKeywordsDataType;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -33,6 +34,56 @@ public class OperationChangeCard implements Operation {
     public OperationChangeCard(String keyword, String newKeyword, String newRValue, String newIValue, String newComment, boolean deleteDuplicatedKeyword) throws OperationIllegalArgumentException {
         if (keyword == null) {
             throw new OperationIllegalArgumentException("Keyword must be specified.");
+        } else if (newKeyword != null && newKeyword.length() > FitsFile.KEYWORD_LENGTH) {
+            throw new OperationIllegalArgumentException("New keyword exceeds max length (" + FitsFile.KEYWORD_LENGTH + ").");
+        }
+        FitsCard card = new FitsCard();
+        if (newKeyword != null) {
+            card.setKeyword(newKeyword);
+        } else {
+            card.setKeyword(keyword);
+        }
+        if (newIValue != null) {
+            card.setIValue(newIValue);
+        }
+        if (newRValue == null && card.getDataType() != FitsKeywordsDataType.NONE) {
+            if (newIValue == null) {
+                switch (card.getKeyword().getType()) {
+                    case INT:
+                        card.setRValue("0");
+                        break;
+                    case REAL:
+                        card.setRValue("0.0");
+                        break;
+                    case LITERAL:
+                    case CUSTOM:
+                        card.setRValue("text");
+                        break;
+                    case LOGICAL:
+                        card.setRValue("T");
+                        break;
+                }
+            } else {
+                FitsKeywordsDataType dataType = card.getDataType();
+                if (card.getKeyword().getType() == FitsKeywordsDataType.CUSTOM || card.getKeyword().getType() == dataType) {
+                    if (dataType == FitsKeywordsDataType.INT) {
+                        card.setRValue("0");
+                    } else if (dataType == FitsKeywordsDataType.REAL) {
+                        card.setRValue("0.0");
+                    }
+                }
+            }
+        } else if (newRValue != null) {
+            card.setRValue(newRValue);
+        }
+        if (newComment != null) {
+            card.setComment(newComment);
+        } else if (card.getKeyword().isUnitKeyword()) {
+            card.setComment("[s]");
+        }
+        List<String> problems = card.validate();
+        if (!problems.isEmpty()) {
+            throw new OperationIllegalArgumentException(String.join("\n", problems));
         }
         this.keyword = keyword;
         this.newKeyword = newKeyword;

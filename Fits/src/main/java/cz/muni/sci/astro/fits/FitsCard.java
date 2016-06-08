@@ -465,6 +465,10 @@ public class FitsCard {
             return FitsKeywordsDataType.REAL;
         } else if (rValue instanceof Boolean) {
             return FitsKeywordsDataType.LOGICAL;
+        } else if (iValue instanceof Integer) {
+            return FitsKeywordsDataType.INT;
+        } else if (iValue instanceof Double) {
+            return FitsKeywordsDataType.REAL;
         } else {
             return FitsKeywordsDataType.LITERAL;
         }
@@ -607,7 +611,7 @@ public class FitsCard {
                 problems.add(linkProblem("Keyword ", keywordName, " has ", realDataType.toString(), " data type, but it should have ", keywordDataType.toString(), " data type."));
             }
         }
-        if (realDataType != FitsKeywordsDataType.NONE && iValue != null && !getIValueString().isEmpty() && realDataType != imaginaryDataType) {
+        if (realDataType != FitsKeywordsDataType.NONE && iValue != null && !getIValueString().isEmpty() && realDataType != imaginaryDataType && (realDataType == FitsKeywordsDataType.INT || realDataType == FitsKeywordsDataType.REAL)) {
             problems.add(linkProblem("Keyword ", keywordName, " has ", realDataType.toString(), " data type of real value, but imaginary value has ", imaginaryDataType.toString(), " data type."));
         }
         if ((realDataType == FitsKeywordsDataType.INT || realDataType == FitsKeywordsDataType.REAL) && getRValueString().length() > VALUE_LENGTH) {
@@ -619,8 +623,10 @@ public class FitsCard {
         if (keyword.isUnitKeyword() && (getComment() == null || getComment().isEmpty())) {
             problems.add(linkProblem("Keyword ", keywordName, " is keyword with physical unit, but comment is empty."));
         }
-        if (!getIValueString().isEmpty() && (realDataType == FitsKeywordsDataType.LITERAL || realDataType == FitsKeywordsDataType.LOGICAL)) {
+        if (!getIValueString().isEmpty() && !getRValueString().isEmpty() && (realDataType == FitsKeywordsDataType.LITERAL || realDataType == FitsKeywordsDataType.LOGICAL)) {
             problems.add(linkProblem("Keyword ", keywordName, " has ", realDataType.toString(), " data type, so it cannot have imaginary value."));
+        } else if (!getIValueString().isEmpty() && getRValueString().isEmpty()) {
+            problems.add(linkProblem("Keyword ", keywordName, " has imaginary value, but real value is empty."));
         }
         if (realDataType == FitsKeywordsDataType.LOGICAL && getComment().length() + COMMENT_SEPARATOR.length() > FitsFile.CARD_LENGTH - IVALUE_START_INDEX) {
             problems.add(linkProblem("Keyword ", keywordName, " has too long comment (", String.valueOf(getComment().length()), " chars), max allowed chars are ", String.valueOf(FitsFile.CARD_LENGTH - IVALUE_START_INDEX - COMMENT_SEPARATOR.length()), "."));

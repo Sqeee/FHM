@@ -5,6 +5,7 @@ import cz.muni.sci.astro.fits.FitsFile;
 
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents concatenating operation
@@ -34,11 +35,20 @@ public class OperationConcatenate implements Operation {
             throw new OperationIllegalArgumentException("No keyword for concatenation was specified.");
         } else if (values == null || values.isEmpty()) {
             throw new OperationIllegalArgumentException("No values for concatenation was specified.");
+        } else if (keyword.length() > FitsFile.KEYWORD_LENGTH) {
+            throw new OperationIllegalArgumentException("Keyword exceeds max length (" + FitsFile.KEYWORD_LENGTH + ").");
         }
         for (String value : values) {
             if (!value.startsWith(PREFIX_STRING) && !value.startsWith(PREFIX_KEYWORD_VALUE)) {
                 throw new OperationIllegalArgumentException("Unknown concatenation value - " + value + ".");
             }
+        }
+        FitsCard card = new FitsCard();
+        card.setKeyword(keyword);
+        card.setRValue(values.stream().filter(s -> s.startsWith(PREFIX_STRING)).map(s -> s.substring(PREFIX_STRING.length())).collect(Collectors.joining(glue, glue, null)));
+        List<String> problems = card.validate();
+        if (!problems.isEmpty()) {
+            throw new OperationIllegalArgumentException(String.join("\n", problems));
         }
         this.keyword = keyword;
         this.values = values;

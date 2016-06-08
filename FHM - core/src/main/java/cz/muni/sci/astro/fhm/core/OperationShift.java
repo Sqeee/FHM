@@ -38,11 +38,33 @@ public class OperationShift implements Operation {
             throw new OperationIllegalArgumentException("No keyword for shifting was specified.");
         } else if (intervals == null || intervals.isEmpty()) {
             throw new OperationIllegalArgumentException("No intervals for shifting was specified.");
+        } else if (keyword.length() > FitsFile.KEYWORD_LENGTH) {
+            throw new OperationIllegalArgumentException("Keyword exceeds max length (" + FitsFile.KEYWORD_LENGTH + ").");
         }
         for (String interval : intervals) {
             if (!interval.startsWith(PREFIX_YEAR) && !interval.startsWith(PREFIX_MONTH) && !interval.startsWith(PREFIX_DAY) && !interval.startsWith(PREFIX_HOUR) && !interval.startsWith(PREFIX_MINUTE) && !interval.startsWith(PREFIX_SECOND) && !interval.startsWith(PREFIX_MILLISECOND) && !interval.startsWith(PREFIX_MICROSECOND)) {
                 throw new OperationIllegalArgumentException("Unknown shifting interval - " + interval + ".");
             }
+        }
+        FitsCard card = new FitsCard();
+        card.setKeyword(keyword);
+        switch (card.getKeyword().getType()) {
+            case INT:
+                card.setRValue("0");
+                break;
+            case REAL:
+                card.setRValue("0.0");
+                break;
+            case LITERAL:
+            case CUSTOM:
+                card.setRValue("2016-01-01 00:00:00");
+                break;
+            default:
+                throw new OperationIllegalArgumentException("Keyword " + keyword + " has " + card.getKeyword().getType() + " data type and it cannot be shifted.");
+        }
+        List<String> problems = card.validate();
+        if (!problems.isEmpty()) {
+            throw new OperationIllegalArgumentException(String.join("\n", problems));
         }
         this.keyword = keyword;
         this.intervals = intervals;

@@ -1,5 +1,7 @@
 package cz.muni.sci.astro.fhm.gui.controlls;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.TextField;
 
@@ -10,7 +12,7 @@ import javafx.scene.control.TextField;
  */
 public class TextFieldMaxLength extends TextField {
     private static final int DEFAULT_MAX_LENGTH = 8;
-    private final int maxLength;
+    private IntegerProperty maxLength;
 
     /**
      * Creates new instance of this component
@@ -31,7 +33,7 @@ public class TextFieldMaxLength extends TextField {
         if (maxLength < 0) {
             throw new IllegalArgumentException("maxLength cannot be negative");
         }
-        this.maxLength = maxLength;
+        this.maxLength = new SimpleIntegerProperty(maxLength);
     }
 
     /**
@@ -57,7 +59,7 @@ public class TextFieldMaxLength extends TextField {
         if (text.isEmpty()) {
             super.replaceText(start, end, text);
         } else {
-            super.replaceText(start, end, text.substring(0, Math.min(maxLength - (getText().length() - end + start), text.length())));
+            super.replaceText(start, end, text.substring(0, Math.min(getMaxLength() - (getText().length() - end + start), text.length())));
         }
     }
 
@@ -71,7 +73,38 @@ public class TextFieldMaxLength extends TextField {
         if (replacement.isEmpty()) {
             super.replaceSelection(replacement);
         } else {
-            super.replaceSelection(replacement.substring(0, Math.min(maxLength - (getText().length() - getSelectedText().length()), replacement.length())));
+            super.replaceSelection(replacement.substring(0, Math.min(getMaxLength() - (getText().length() - getSelectedText().length()), replacement.length())));
         }
+    }
+
+    /**
+     * Returns integer property of max length
+     *
+     * @return integer property of max length
+     */
+    public IntegerProperty maxLengthProperty() {
+        return maxLength;
+    }
+
+    /**
+     * Returns int value of max length property
+     *
+     * @return int value of max length property
+     */
+    public int getMaxLength() {
+        return maxLength.get();
+    }
+
+    /**
+     * Sets max length property
+     *
+     * @param maxLength new max length (cannot be negative)
+     */
+    public void setMaxLength(int maxLength) {
+        if (maxLength < 0) {
+            throw new IllegalArgumentException("max length cannot be negative");
+        }
+        this.maxLength.set(maxLength);
+        setText(getText().substring(0, Math.min(getMaxLength(), getText().length())));
     }
 }

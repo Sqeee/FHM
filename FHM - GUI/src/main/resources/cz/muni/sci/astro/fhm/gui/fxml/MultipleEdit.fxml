@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import cz.muni.sci.astro.fhm.gui.controlls.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -65,8 +66,10 @@
                                                         <Font name="System Bold" size="12.0"/>
                                                     </font>
                                                 </Label>
-                                                <TextField fx:id="textFieldAddCardKeyword" GridPane.columnIndex="1"
-                                                           GridPane.columnSpan="2" GridPane.valignment="CENTER"/>
+                                                <TextFieldMaxLength fx:id="textFieldAddCardKeyword"
+                                                                    GridPane.columnIndex="1"
+                                                                    GridPane.columnSpan="2"
+                                                                    GridPane.valignment="CENTER"/>
                                                 <TextField fx:id="textFieldAddCardRValue" GridPane.columnIndex="1"
                                                            GridPane.columnSpan="2" GridPane.rowIndex="1"/>
                                                 <TextField fx:id="textFieldAddCardIValue" GridPane.columnIndex="1"
@@ -75,8 +78,9 @@
                                                            GridPane.columnSpan="2" GridPane.rowIndex="3"/>
                                                 <TextField fx:id="textFieldAddCardIndex" GridPane.columnIndex="2"
                                                            GridPane.rowIndex="4"/>
-                                                <TextField fx:id="textFieldAddCardAfterKeyword" GridPane.columnIndex="2"
-                                                           GridPane.rowIndex="5"/>
+                                                <TextFieldMaxLength fx:id="textFieldAddCardAfterKeyword"
+                                                                    GridPane.columnIndex="2"
+                                                                    GridPane.rowIndex="5"/>
                                                 <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="1">
                                                     <children>
                                                         <CheckBox fx:id="checkBoxAddCardRValue"
@@ -171,7 +175,8 @@
                                                         <ToggleGroup fx:id="toggleGroupRemoveCard"/>
                                                     </toggleGroup>
                                                 </RadioButton>
-                                                <TextField fx:id="textFieldRemoveCardKeyword" GridPane.columnIndex="1"/>
+                                                <TextFieldMaxLength fx:id="textFieldRemoveCardKeyword"
+                                                                    GridPane.columnIndex="1"/>
                                                 <RadioButton fx:id="toggleRemoveCardIndex" mnemonicParsing="false"
                                                              text="index" toggleGroup="$toggleGroupRemoveCard"
                                                              GridPane.rowIndex="1"/>
@@ -210,10 +215,11 @@
                                                         <Font name="System Bold" size="12.0"/>
                                                     </font>
                                                 </Label>
-                                                <TextField fx:id="textFieldChangeCardKeyword" GridPane.columnIndex="1"
-                                                           GridPane.valignment="CENTER"/>
-                                                <TextField fx:id="textFieldChangeCardNewKeyword"
-                                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                <TextFieldMaxLength fx:id="textFieldChangeCardKeyword"
+                                                                    GridPane.columnIndex="1"
+                                                                    GridPane.valignment="CENTER"/>
+                                                <TextFieldMaxLength fx:id="textFieldChangeCardNewKeyword"
+                                                                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                                                 <TextField fx:id="textFieldChangeCardRValue" GridPane.columnIndex="1"
                                                            GridPane.rowIndex="2"/>
                                                 <TextField fx:id="textFieldChangeCardIValue" GridPane.columnIndex="1"
@@ -340,10 +346,12 @@
                                                         <Font name="System Bold" size="12.0"/>
                                                     </font>
                                                 </Label>
-                                                <TextField fx:id="textFieldConcatenateKeyword" GridPane.columnIndex="1"
-                                                           GridPane.columnSpan="2" GridPane.valignment="CENTER"/>
-                                                <TextField fx:id="textFieldConcatenateKeywordValue"
-                                                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                <TextFieldMaxLength fx:id="textFieldConcatenateKeyword"
+                                                                    GridPane.columnIndex="1"
+                                                                    GridPane.columnSpan="2"
+                                                                    GridPane.valignment="CENTER"/>
+                                                <TextFieldMaxLength fx:id="textFieldConcatenateKeywordValue"
+                                                                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                                                 <Button fx:id="buttonConcatenateAddKeywordValue"
                                                         maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                                                         onAction="#handleClickButtonConcatenateAddKeywordValue"
@@ -434,8 +442,10 @@
                                                         <Font name="System Bold" size="12.0"/>
                                                     </font>
                                                 </Label>
-                                                <TextField fx:id="textFieldShiftKeyword" GridPane.columnIndex="1"
-                                                           GridPane.columnSpan="3" GridPane.valignment="CENTER"/>
+                                                <TextFieldMaxLength fx:id="textFieldShiftKeyword"
+                                                                    GridPane.columnIndex="1"
+                                                                    GridPane.columnSpan="3"
+                                                                    GridPane.valignment="CENTER"/>
                                                 <TextField fx:id="textFieldShiftYears" GridPane.columnIndex="1"
                                                            GridPane.rowIndex="1"/>
                                                 <TextField fx:id="textFieldShiftMonths" GridPane.columnIndex="1"
@@ -507,10 +517,11 @@
                                                         <Font name="System Bold" size="12.0"/>
                                                     </font>
                                                 </Label>
-                                                <TextField fx:id="textFieldJDKeyword" GridPane.columnIndex="1"
-                                                           GridPane.columnSpan="2"/>
-                                                <TextField fx:id="textFieldJDSourceKeyword" GridPane.columnIndex="2"
-                                                           GridPane.rowIndex="1"/>
+                                                <TextFieldMaxLength fx:id="textFieldJDKeyword" GridPane.columnIndex="1"
+                                                                    GridPane.columnSpan="2"/>
+                                                <TextFieldMaxLength fx:id="textFieldJDSourceKeyword"
+                                                                    GridPane.columnIndex="2"
+                                                                    GridPane.rowIndex="1"/>
                                                 <TextField fx:id="textFieldJDSourceDatetime" GridPane.columnIndex="2"
                                                            GridPane.rowIndex="2"/>
                                                 <RadioButton fx:id="toggleJDSourceKeyword" mnemonicParsing="false"

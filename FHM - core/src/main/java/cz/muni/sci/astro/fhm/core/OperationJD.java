@@ -33,6 +33,8 @@ public class OperationJD implements Operation {
             throw new OperationIllegalArgumentException("No keyword for computing julian day was specified.");
         } else if (sourceKeyword == null && dateTime == null) {
             throw new OperationIllegalArgumentException("Source keyword or date time value must be specified.");
+        } else if (keyword.length() > FitsFile.KEYWORD_LENGTH) {
+            throw new OperationIllegalArgumentException("Keyword exceeds max length (" + FitsFile.KEYWORD_LENGTH + ").");
         }
         if (dateTime != null) {
             try {
@@ -40,6 +42,13 @@ public class OperationJD implements Operation {
             } catch (FitsCardDateValueUnknownFormatException exc) {
                 throw new OperationIllegalArgumentException("Given date time value has unknown or bad format.");
             }
+        }
+        FitsCard card = new FitsCard();
+        card.setKeyword(keyword);
+        card.setRValue("0.0");
+        List<String> problems = card.validate();
+        if (!problems.isEmpty()) {
+            throw new OperationIllegalArgumentException(String.join("\n", problems));
         }
         this.keyword = keyword;
         this.sourceKeyword = sourceKeyword;

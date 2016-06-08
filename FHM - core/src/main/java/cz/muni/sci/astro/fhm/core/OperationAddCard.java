@@ -39,6 +39,8 @@ public class OperationAddCard implements Operation {
             throw new OperationIllegalArgumentException("Only index or after keyword can be specified, not both.");
         } else if (keyword == null) {
             throw new OperationIllegalArgumentException("Keyword must be specified.");
+        } else if (keyword.length() > FitsFile.KEYWORD_LENGTH) {
+            throw new OperationIllegalArgumentException("Keyword exceeds max length (" + FitsFile.KEYWORD_LENGTH + ").");
         }
         if (rvalue == null) {
             rvalue = "";
@@ -48,6 +50,15 @@ public class OperationAddCard implements Operation {
         }
         if (comment == null) {
             comment = "";
+        }
+        FitsCard card = new FitsCard();
+        card.setKeyword(keyword);
+        card.setRValue(rvalue);
+        card.setIValue(ivalue);
+        card.setComment(comment);
+        List<String> problems = card.validate();
+        if (!problems.isEmpty()) {
+            throw new OperationIllegalArgumentException(String.join("\n", problems));
         }
         this.keyword = keyword;
         this.rvalue = rvalue;
