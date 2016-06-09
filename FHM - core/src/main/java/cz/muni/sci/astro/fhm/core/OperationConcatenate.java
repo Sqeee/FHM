@@ -26,7 +26,7 @@ public class OperationConcatenate implements Operation {
      *
      * @param keyword    keyword of card, where the result will be stored, cannot be null
      * @param values     list of values used for concatenation, every value has prefix identified value type (-s= for string, -k= for keyword values), cannot be null or empty, can contain only allowed prefixes
-     * @param glue       glue string used between values
+     * @param glue       glue string used between values, cannot be null
      * @param updateCard if in case that header unique keyword is already in header should be updated
      * @throws OperationIllegalArgumentException if argument has invalid value
      */
@@ -37,6 +37,8 @@ public class OperationConcatenate implements Operation {
             throw new OperationIllegalArgumentException("No values for concatenation was specified.");
         } else if (keyword.length() > FitsFile.KEYWORD_LENGTH) {
             throw new OperationIllegalArgumentException("Keyword exceeds max length (" + FitsFile.KEYWORD_LENGTH + ").");
+        } else if (glue == null) {
+            throw new OperationIllegalArgumentException("No glue for concatenation was specified.");
         }
         for (String value : values) {
             if (!value.startsWith(PREFIX_STRING) && !value.startsWith(PREFIX_KEYWORD_VALUE)) {
@@ -45,7 +47,7 @@ public class OperationConcatenate implements Operation {
         }
         FitsCard card = new FitsCard();
         card.setKeyword(keyword);
-        card.setRValue(values.stream().filter(s -> s.startsWith(PREFIX_STRING)).map(s -> s.substring(PREFIX_STRING.length())).collect(Collectors.joining(glue, glue, null)));
+        card.setRValue(values.stream().filter(s -> s.startsWith(PREFIX_STRING)).map(s -> s.substring(PREFIX_STRING.length())).collect(Collectors.joining(glue, glue, "")));
         List<String> problems = card.validate();
         if (!problems.isEmpty()) {
             throw new OperationIllegalArgumentException(String.join("\n", problems));

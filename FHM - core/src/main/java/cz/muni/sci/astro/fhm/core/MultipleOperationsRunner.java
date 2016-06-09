@@ -120,7 +120,7 @@ public class MultipleOperationsRunner {
      * @param files      file names for concatenation
      * @param keyword    keyword of card, where the result will be stored, cannot be null
      * @param values     list of values used for concatenation, every value has prefix identified value type (-s= for string, -k= for keyword values), cannot be null or empty, can contain only allowed prefixes
-     * @param glue       glue string used between values
+     * @param glue       glue string used between values, cannot be null
      * @param updateCard if in case that header unique keyword is already in header should be updated
      */
     public void concatenate(List<String> files, String keyword, List<String> values, String glue, boolean updateCard) {

@@ -250,7 +250,7 @@ public class CommandsInterpreter {
                     while (matcherParam.find()) {
                         params.add(getParamAndValue());
                     }
-                    operationsRunner.concatenate(filteredFiles, keyword, params, null, modifyParam);
+                    operationsRunner.concatenate(filteredFiles, keyword, params, "", modifyParam);
                     break;
                 case SHIFT:
                     matcherParam.find();
