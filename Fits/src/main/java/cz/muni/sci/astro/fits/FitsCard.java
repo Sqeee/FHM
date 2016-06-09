@@ -25,6 +25,7 @@ public class FitsCard {
     private static final String CONTINUED_VALUE_END_MARK = "&";
     private static final int VALUE_LENGTH_RESERVED = 2 * LITERAL_MARK.length() + CONTINUED_VALUE_END_MARK.length();
     private static final String TRAIL_END = "\\s+$";
+    private static final String CUSTOM_KEYWORD = "CUSTOMKW";
 
     private FitsKeyword keyword;
     private Object rValue;
@@ -64,15 +65,61 @@ public class FitsCard {
     private void createNewFormEntry(String entry) throws FitsCardBadFormatException {
         countContinue = 0;
         setKeyword(entry.substring(0, FitsFile.KEYWORD_LENGTH + 1));
+        FitsCard customHelper;
+        FitsKeywordsDataType customHelperDataType;
         switch (keyword.getType()) {
             case LOGICAL:
-                processLogical(entry);
+                try {
+                    processLogical(entry);
+                } catch (FitsCardBadFormatException exc) { // tries to find logical value in literal type
+                    customHelper = new FitsCard(CUSTOM_KEYWORD + entry.substring(FitsFile.KEYWORD_LENGTH));
+                    customHelperDataType = customHelper.getDataTypeOfValue(customHelper.getRValueString());
+                    if (customHelperDataType == FitsKeywordsDataType.LOGICAL) {
+                        setRValue(customHelper.getRValueString());
+                        setIValue(customHelper.getIValueString());
+                        setComment(customHelper.getComment());
+                    } else {
+                        throw exc;
+                    }
+                }
                 break;
             case INT:
-                processInt(entry);
+                try {
+                    processInt(entry);
+                } catch (FitsCardBadFormatException exc) { // tries to find int value in literal type
+                    customHelper = new FitsCard(CUSTOM_KEYWORD + entry.substring(FitsFile.KEYWORD_LENGTH));
+                    customHelperDataType = customHelper.getDataTypeOfValue(customHelper.getRValueString());
+                    if (customHelperDataType == FitsKeywordsDataType.INT) {
+                        setRValue(customHelper.getRValueString());
+                        setIValue(customHelper.getIValueString());
+                        setComment(customHelper.getComment());
+                    } else {
+                        throw exc;
+                    }
+                }
                 break;
             case REAL:
-                processReal(entry);
+                try {
+                    processReal(entry);
+                } catch (FitsCardBadFormatException exc) { // tries to find real value in literal type
+                    customHelper = new FitsCard(CUSTOM_KEYWORD + entry.substring(FitsFile.KEYWORD_LENGTH));
+                    customHelperDataType = customHelper.getDataTypeOfValue(customHelper.getRValueString());
+                    if (customHelperDataType == FitsKeywordsDataType.REAL) {
+                        setRValue(customHelper.getRValueString());
+                        setIValue(customHelper.getIValueString());
+                        setComment(customHelper.getComment());
+                    } else if (customHelperDataType == FitsKeywordsDataType.INT) {
+                        setRValue(customHelper.getRValueString() + ".0");
+                        setComment(customHelper.getComment());
+                        if (customHelper.getDataTypeOfValue(customHelper.getIValueString()) == FitsKeywordsDataType.INT) {
+                            setIValue(customHelper.getIValueString() + ".0");
+                        } else {
+                            setIValue(customHelper.getRValueString());
+                        }
+                    } else {
+                        throw exc;
+                    }
+                }
                 break;
             case LITERAL:
                 if (entry.charAt(RVALUE_START_INDEX) != '\'' || !entry.substring(RVALUE_START_INDEX + 1).contains(LITERAL_MARK)) {
