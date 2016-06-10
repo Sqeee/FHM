@@ -1,7 +1,11 @@
 package cz.muni.sci.astro.fhm.gui;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -9,8 +13,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -97,5 +105,35 @@ public class GUIHelpers {
         MenuItem menuItem = mainViewController.getMenuBar().getMenus().get(menuIndex).getItems().get(menuItemIndex);
         menuItem.setDisable(disable);
         menuItem.setOnAction(setOnAction);
+    }
+
+    /**
+     * Creates progress information window about running operation
+     *
+     * @param processInfo information about process
+     * @param task        task of process
+     * @return stage of created window
+     */
+    public static Stage createProgressInfo(String processInfo, Task<?> task) {
+        try {
+            FXMLLoader loader = new FXMLLoader(GUIHelpers.class.getResource("fxml/ProgressInfo.fxml"));
+            VBox vBox = loader.load();
+            Stage progressInfo = new Stage();
+            progressInfo.setTitle("Progress monitor");
+            progressInfo.initStyle(StageStyle.UTILITY);
+            progressInfo.setOnCloseRequest(Event::consume);
+            progressInfo.initModality(Modality.APPLICATION_MODAL);
+            Scene scene = new Scene(vBox);
+            progressInfo.setMinHeight(130);
+            progressInfo.setMinWidth(600);
+            progressInfo.setScene(scene);
+            progressInfo.sizeToScene();
+            setIcons(progressInfo);
+            ProgressInfoController controller = loader.getController();
+            controller.prepareWindow(processInfo, task);
+            return progressInfo;
+        } catch (IOException ignored) {
+            return new Stage();
+        }
     }
 }

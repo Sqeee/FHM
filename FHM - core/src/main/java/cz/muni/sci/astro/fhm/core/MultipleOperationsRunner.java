@@ -242,11 +242,26 @@ public class MultipleOperationsRunner {
     }
 
     /**
-     * Executes operations
+     * Executes operations in non task mode
      */
     public void executeOperations() {
+        executeOperations(null, null, null);
+    }
+
+    /**
+     * Executes operations
+     *
+     * @param updateProgress method, which updates progress of task
+     * @param updateTitle    method, which updates title of task
+     * @param isCancelled    method, which checks if task is cancelled
+     */
+    public void executeOperations(TaskUpdateProgress updateProgress, TaskUpdateTitle updateTitle, TaskIsCancelled isCancelled) {
+        if (updateTitle != null) {
+            updateTitle.done("Preparing for executing");
+        }
         if (operations.isEmpty()) {
             printerOK.print("No operations was set.");
+            return;
         }
         Map<String, List<Operation>> fileOperations = new HashMap<>();
         for (int i = 0; i < operations.size(); i++) {
@@ -262,8 +277,19 @@ public class MultipleOperationsRunner {
                 }
             }
         }
+        int countFiles = fileOperations.size() + 1;
+        int counter = 1;
+        if (updateProgress != null) {
+            updateProgress.done(counter, countFiles);
+        }
         for (Map.Entry<String, List<Operation>> entry : fileOperations.entrySet()) {
+            if (isCancelled != null && isCancelled.done()) {
+                break;
+            }
             File file = new File(entry.getKey());
+            if (updateTitle != null) {
+                updateTitle.done(file.getName());
+            }
             FitsFile fitsFile;
             try {
                 fitsFile = new FitsFile(file);
@@ -288,6 +314,10 @@ public class MultipleOperationsRunner {
                 problems.forEach(printerError::print);
             }
             fitsFile.close();
+            counter++;
+            if (updateProgress != null) {
+                updateProgress.done(counter, countFiles);
+            }
         }
         operations.clear();
         filesForOperations.clear();

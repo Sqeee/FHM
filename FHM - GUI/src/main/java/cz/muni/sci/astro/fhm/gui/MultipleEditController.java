@@ -8,12 +8,15 @@ import cz.muni.sci.astro.fits.FitsCardDateValue;
 import cz.muni.sci.astro.fits.FitsCardDateValueUnknownFormatException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -319,26 +322,11 @@ public class MultipleEditController {
     }
 
     /**
-     * Handles click on button Execute - tries to execute operations, if there are some problems, shows them and return false
-     *
-     * @return true if save does not failed, otherwise false
+     * Handles click on button Execute - tries to execute operations, if there are some problems, shows them
      */
     @FXML
-    private boolean handleClickButtonExecute() {
-        boolean result;
-        printOK();
-        printOK("Executing operations on files.");
-        allOK = true;
-        operationsRunner.executeOperations();
-        listViewOperationQueue.setItems(null);
-        result = allOK;
-        refreshLogs();
-        if (result) {
-            GUIHelpers.showAlert(AlertType.INFORMATION, "Executing operations", "Operations on all files were executed successfully.", null);
-        } else {
-            GUIHelpers.showAlert(AlertType.ERROR, "Executing operations", "Problems with executing operations.", "Details are in log.");
-        }
-        return result;
+    private void handleClickButtonExecute() {
+        executeOperations(false);
     }
 
     /**
@@ -346,9 +334,7 @@ public class MultipleEditController {
      */
     @FXML
     private void handleClickButtonExecuteQuit() {
-        if (handleClickButtonExecute()) {
-            quit();
-        }
+        executeOperations(true);
     }
 
     /**
@@ -740,6 +726,49 @@ public class MultipleEditController {
             joiner.add(new File(file).getName());
         }
         GUIHelpers.showAlert(AlertType.INFORMATION, "Affected files by operation", "These files will be affected by operation", joiner.toString());
+    }
+
+    /**
+     * Executes operations in queue
+     *
+     * @param quitAfter if after executing app should quit (in case of no problems during executing operations)
+     */
+    private void executeOperations(boolean quitAfter) {
+        printOK();
+        printOK("Executing operations on files.");
+        Task<Boolean> task = new TaskOperationRunner() {
+            @Override
+            protected Boolean call() throws Exception {
+                allOK = true;
+                operationsRunner.executeOperations(this::updateProgress, this::updateTitle, this::isCancelled);
+                return allOK;
+            }
+        };
+        Stage progressInfo = GUIHelpers.createProgressInfo("Executing operations. Please wait.", task);
+        task.setOnSucceeded(event -> {
+            progressInfo.close();
+            listViewOperationQueue.setItems(null);
+            refreshLogs();
+            if (task.getValue()) {
+                GUIHelpers.showAlert(AlertType.INFORMATION, "Executing operations", "Operations on all files were executed successfully.", null);
+                if (quitAfter) {
+                    quit();
+                }
+            } else {
+                GUIHelpers.showAlert(AlertType.ERROR, "Executing operations", "Problems with executing operations.", "Details are in log.");
+            }
+        });
+        EventHandler<WorkerStateEvent> failAction = event -> {
+            progressInfo.close();
+            listViewOperationQueue.setItems(FXCollections.observableList(operationsRunner.getOperations()));
+            refreshLogs();
+            GUIHelpers.showAlert(AlertType.ERROR, "Executing operations", "Problems with executing operations.", "Not all operations were executed. You can rerun operations.");
+        };
+        task.setOnFailed(failAction);
+        task.setOnCancelled(failAction);
+        progressInfo.show();
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     /**

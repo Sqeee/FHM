@@ -1,10 +1,15 @@
 package cz.muni.sci.astro.fhm.gui;
 
+import cz.muni.sci.astro.fits.FitsCard;
 import cz.muni.sci.astro.fits.FitsException;
 import cz.muni.sci.astro.fits.FitsFile;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -54,15 +59,12 @@ public class SelectFiles2Controller {
     }
 
     /**
-     * Handles click on button Preview - deselect all files, apply filter and request focus
+     * Handles click on button Preview - deselect all files and apply filter
      */
     @FXML
     private void handleClickButtonPreview() {
         listViewSelectedFiles.getSelectionModel().select(-1);
-        for (String name : applyFilter()) {
-            listViewSelectedFiles.getSelectionModel().select(name);
-        }
-        listViewSelectedFiles.requestFocus();
+        applyFilter();
     }
 
     /**
@@ -85,14 +87,11 @@ public class SelectFiles2Controller {
 
     /**
      * Applies advanced filter and select results after filtering (filtering is using JavaScript eval)
-     *
-     * @return filtered FITS files
      */
-    private List<String> applyFilter() {
+    private void applyFilter() {
         if (textAreaFiltering.getText().trim().isEmpty()) {
-            return listViewSelectedFiles.getSelectionModel().getSelectedItems();
+            listViewSelectedFiles.requestFocus();
         }
-        List<String> result = new ArrayList<>();
         // Convert syntax to JavaScript syntax
         String conditions = textAreaFiltering.getText().replace("&", "&&");
         conditions = conditions.replace("|", "||");
@@ -101,28 +100,67 @@ public class SelectFiles2Controller {
         conditions = conditions.replace("\"", "\\\"");
         conditions = conditions.replaceAll("(\\w*)[ ]?([!=]=)[ ]?([\\w ]*)", "$1 $2 \"$3\"");
         conditions = conditions.replaceAll("(\\w*)-(\\w*)[ ]?([!=]=)[ ]?([\\w ]*)", "$1__$2 $3 \"$4\"");
-
-        ScriptEngine engine;
-        for (String name : listViewSelectedFiles.getItems()) {
-            try (FitsFile file = new FitsFile(new File(name))) {
-                boolean accepted = true;
-                for (int i = 0; i < file.getCountHDUs(); i++) {
-                    engine = new ScriptEngineManager().getEngineByName("JavaScript");
-                    engine.eval(file.getHDU(i).getHeader().getJavaScriptKeywordsAndValues());
-                    // Evaluate (card is definition, filtering is formula to test)
-                    if (!engine.eval(conditions).equals(true)) {
-                        accepted = false;
+        final String finalConditions = conditions;
+        Task<List<String>> task = new Task<List<String>>() {
+            @Override
+            protected List<String> call() throws Exception {
+                int countFiles = listViewSelectedFiles.getItems().size();
+                List<String> result = new ArrayList<>(countFiles);
+                ScriptEngine engine;
+                updateProgress(0, countFiles);
+                int counter = 0;
+                for (String name : listViewSelectedFiles.getItems()) {
+                    if (isCancelled()) {
+                        break;
+                    }
+                    File fFile = new File(name);
+                    updateTitle(fFile.getName());
+                    try (FitsFile file = new FitsFile(fFile)) {
+                        boolean accepted = true;
+                        for (int i = 0; i < file.getCountHDUs(); i++) {
+                            engine = new ScriptEngineManager().getEngineByName("JavaScript");
+                            engine.eval(file.getHDU(i).getHeader().getJavaScriptKeywordsAndValues());
+                            // Evaluate (card is definition, filtering is formula to test)
+                            if (!engine.eval(finalConditions).equals(true)) {
+                                accepted = false;
+                            }
+                        }
+                        if (accepted) {
+                            result.add(name);
+                        }
+                    } catch (ScriptException | FitsException ignored) { // if throws exception, then I consider it as not accepted file by conditions
+                        if (isCancelled()) {
+                            break;
+                        }
+                    } finally {
+                        counter++;
+                        updateProgress(counter, countFiles);
                     }
                 }
-                if (accepted) {
-                    result.add(name);
-                }
-            } catch (ScriptException | FitsException ignored) {
-            } // if throws exception, then I consider it as not accepted file by conditions
-        }
-        if (result.isEmpty()) {
+                return result;
+            }
+        };
+        Stage progressInfo = GUIHelpers.createProgressInfo("Filtering fits files. Please wait.", task);
+        task.setOnSucceeded(event -> {
+            progressInfo.close();
+            if (task.getValue().isEmpty()) {
+                buttonContinue.setDisable(true);
+            }
+            for (String name : task.getValue()) {
+                listViewSelectedFiles.getSelectionModel().select(name);
+            }
+            listViewSelectedFiles.requestFocus();
+        });
+        EventHandler<WorkerStateEvent> failAction = event -> {
+            progressInfo.close();
             buttonContinue.setDisable(true);
-        }
-        return result;
+            listViewSelectedFiles.requestFocus();
+            GUIHelpers.showAlert(Alert.AlertType.ERROR, "Error with filtering fits files", "Error occurs while filtering fits files. Try it again please.", "");
+        };
+        task.setOnCancelled(failAction);
+        task.setOnFailed(failAction);
+        progressInfo.show();
+        Thread thread = new Thread(task);
+        thread.start();
     }
 }

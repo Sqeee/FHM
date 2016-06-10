@@ -3,9 +3,14 @@ package cz.muni.sci.astro.fhm.gui;
 import cz.muni.sci.astro.fits.FitsException;
 import cz.muni.sci.astro.fits.FitsFile;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,32 +91,64 @@ public class SelectFiles1Controller {
      */
     @FXML
     protected void handleClickButtonContinue() {
-        String dir = textFieldChooseDir.getText();
+        final String dir = textFieldChooseDir.getText();
         prefs.put(PREFERENCE_DEFAULT_DIR, dir);
-        List<String> files = new ArrayList<>(listViewFiles.getSelectionModel().getSelectedItems().size());
-        List<String> errors = new ArrayList<>();
-        for (String filename : listViewFiles.getSelectionModel().getSelectedItems()) {
-            String path = dir + '/' + filename;
-            try (FitsFile ignored = new FitsFile(new File(path))) {
-                files.add(path);
-            } catch (FitsException exc) {
-                errors.add("Error: cannot load file " + filename + " with reason " + exc.getMessage());
-            }
-        }
-        if (!errors.isEmpty()) {
-            if (files.isEmpty()) {
-                GUIHelpers.showAlert(Alert.AlertType.ERROR, "Error with loading files", "None of selected files can be loaded.", String.join("\n", errors));
-            } else {
-                GUIHelpers.showAlert(Alert.AlertType.CONFIRMATION, "Error with loading files", "Some selected files cannot be loaded. Do you want to continue without them?", String.join("\n", errors)).ifPresent(response -> {
-                    if (response == ButtonType.OK) {
-                        loadNextForm(files);
+        Task<Pair<List<String>, List<String>>> task = new Task<Pair<List<String>, List<String>>>() {
+            @Override
+            protected Pair<List<String>, List<String>> call() throws Exception {
+                int countFiles = listViewFiles.getSelectionModel().getSelectedItems().size();
+                List<String> files = new ArrayList<>(countFiles);
+                List<String> errors = new ArrayList<>();
+                updateProgress(0, countFiles);
+                int counter = 0;
+                for (String filename : listViewFiles.getSelectionModel().getSelectedItems()) {
+                    if (isCancelled()) {
+                        break;
                     }
-                });
+                    updateTitle(filename);
+                    String path = dir + '/' + filename;
+                    try (FitsFile ignored = new FitsFile(new File(path))) {
+                        files.add(path);
+                    } catch (FitsException exc) {
+                        if (isCancelled()) {
+                            break;
+                        }
+                        errors.add("Error: cannot load file " + filename + " with reason " + exc.getMessage());
+                    }
+                    counter++;
+                    updateProgress(counter, countFiles);
+                }
+                return new Pair<>(files, errors);
             }
-
-        } else {
-            loadNextForm(files);
-        }
+        };
+        Stage progressInfo = GUIHelpers.createProgressInfo("Loading fits files from directory. Please wait.", task);
+        task.setOnSucceeded(event -> {
+            progressInfo.close();
+            List<String> files = task.getValue().getKey();
+            List<String> errors = task.getValue().getValue();
+            if (!errors.isEmpty()) {
+                if (files.isEmpty()) {
+                    GUIHelpers.showAlert(Alert.AlertType.ERROR, "Error with loading files", "None of selected files can be loaded.", String.join("\n", errors));
+                } else {
+                    GUIHelpers.showAlert(Alert.AlertType.CONFIRMATION, "Error with loading files", "Some selected files cannot be loaded. Do you want to continue without them?", String.join("\n", errors)).ifPresent(response -> {
+                        if (response == ButtonType.OK) {
+                            loadNextForm(files);
+                        }
+                    });
+                }
+            } else {
+                loadNextForm(files);
+            }
+        });
+        EventHandler<WorkerStateEvent> failAction = event -> {
+            progressInfo.close();
+            GUIHelpers.showAlert(Alert.AlertType.ERROR, "Error with loading fits files", "Error occurs while loading fits files. Try it again please.", "");
+        };
+        task.setOnFailed(failAction);
+        task.setOnCancelled(failAction);
+        progressInfo.show();
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     /**
@@ -162,26 +199,10 @@ public class SelectFiles1Controller {
             } catch (InvalidPathException exc) {
                 dir = null;
             }
-            if (dir != null && Files.isDirectory(dir)) // Dir is valid directory
-            {
+            if (dir != null && Files.isDirectory(dir)) { // Dir is valid directory
                 activateFilteringOptions(true);
                 textFieldChooseDir.setStyle("");
-                List<String> files = listFiles(dir);
-                if (files != null && !files.isEmpty()) // Some files left after applying filter
-                {
-                    listViewFiles.setItems(FXCollections.observableList(files));
-                    activateFilteringOptions(true);
-                } else {
-                    listViewFiles.setItems(null);
-                    if (!filter.equals(DEFAULT_FILTER)) // Used filtering
-                    {
-                        activateFilteringOptions(true);
-                        listViewFiles.setPlaceholder(LABEL_NO_MATCHING);
-                    } else {
-                        activateFilteringOptions(false);
-                        listViewFiles.setPlaceholder(LABEL_NO_FITS);
-                    }
-                }
+                listFiles(dir);
             } else {
                 activateFilteringOptions(false);
                 listViewFiles.setItems(null);
@@ -193,6 +214,27 @@ public class SelectFiles1Controller {
             listViewFiles.setItems(null);
             listViewFiles.setPlaceholder(LABEL_NO_VALID_DIR);
             textFieldChooseDir.setStyle("");
+        }
+    }
+
+    /**
+     * Sets files to list view
+     *
+     * @param files files, which should be viewed in list view
+     */
+    private void setListViewFiles(List<String> files) {
+        if (files != null && !files.isEmpty()) { // Some files left after applying filter
+            listViewFiles.setItems(FXCollections.observableList(files));
+            activateFilteringOptions(true);
+        } else {
+            listViewFiles.setItems(null);
+            if (!filter.equals(DEFAULT_FILTER)) { // Used filtering
+                activateFilteringOptions(true);
+                listViewFiles.setPlaceholder(LABEL_NO_MATCHING);
+            } else {
+                activateFilteringOptions(false);
+                listViewFiles.setPlaceholder(LABEL_NO_FITS);
+            }
         }
     }
 
@@ -211,23 +253,44 @@ public class SelectFiles1Controller {
     }
 
     /**
-     * Returns filtered FITS files from giving directory
+     * Filters FITS files from giving directory
      *
      * @param dir directory containing FITS files
-     * @return filtered FITS files from giving directory
      */
-    private List<String> listFiles(Path dir) {
-        List<String> files = new ArrayList<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, filter)) {
-            for (Path file : stream) {
-                if (Files.isRegularFile(file) && FitsFile.isFitsFile(file.toFile())) {
-                    files.add(file.getFileName().toString());
+    private void listFiles(Path dir) {
+        Task<List<String>> task = new Task<List<String>>() {
+            @Override
+            protected List<String> call() throws Exception {
+                List<String> files = new ArrayList<>();
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, filter)) {
+                    for (Path file : stream) {
+                        if (isCancelled()) {
+                            break;
+                        }
+                        if (Files.isRegularFile(file) && FitsFile.isFitsFile(file.toFile())) {
+                            files.add(file.getFileName().toString());
+                        }
+                    }
+                    return files;
+                } catch (IOException exc) {
+                    return null;
                 }
             }
-        } catch (IOException exc) {
-            return null;
-        }
-        return files;
+        };
+        Stage progressInfo = GUIHelpers.createProgressInfo("Reading files from directory. Please wait.", task);
+        task.setOnSucceeded(event -> {
+            progressInfo.close();
+            setListViewFiles(task.getValue());
+        });
+        EventHandler<WorkerStateEvent> failAction = event -> {
+            progressInfo.close();
+            setListViewFiles(null);
+        };
+        task.setOnFailed(failAction);
+        task.setOnCancelled(failAction);
+        progressInfo.show();
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     /**
