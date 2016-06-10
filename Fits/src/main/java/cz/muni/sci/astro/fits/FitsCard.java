@@ -11,6 +11,7 @@ import java.util.StringJoiner;
  * @author Jan Hlava, 395986
  */
 public class FitsCard {
+    public static final String JAVASCRIPT_KEYWORD_PREFIX = "x";
     private static final String LOGICAL_STRING_FALSE = "F";
     private static final String LOGICAL_STRING_TRUE = "T";
     private static final char LOGICAL_CHAR_FALSE = 'F';
@@ -26,7 +27,6 @@ public class FitsCard {
     private static final int VALUE_LENGTH_RESERVED = 2 * LITERAL_MARK.length() + CONTINUED_VALUE_END_MARK.length();
     private static final String TRAIL_END = "\\s+$";
     private static final String CUSTOM_KEYWORD = "CUSTOMKW";
-
     private FitsKeyword keyword;
     private Object rValue;
     private Object iValue;
@@ -626,7 +626,8 @@ public class FitsCard {
         if (keywordName.isEmpty()) {
             return "";
         }
-        StringBuilder result = new StringBuilder(keywordName.replace("-", "__"));
+        StringBuilder result = new StringBuilder(JAVASCRIPT_KEYWORD_PREFIX);
+        result.append(keywordName.replace("-", "__"));
         FitsKeywordsDataType dataType = getDataType();
         if (keyword.getType() != FitsKeywordsDataType.NONE) {
             result.append(" = ");

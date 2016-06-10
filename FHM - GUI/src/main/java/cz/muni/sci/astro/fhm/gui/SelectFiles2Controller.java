@@ -98,8 +98,8 @@ public class SelectFiles2Controller {
         conditions = conditions.replace("=", "==");
         conditions = conditions.replace("!==", "!=");
         conditions = conditions.replace("\"", "\\\"");
-        conditions = conditions.replaceAll("(\\w*)[ ]?([!=]=)[ ]?([\\w ]*)", "$1 $2 \"$3\"");
-        conditions = conditions.replaceAll("(\\w*)-(\\w*)[ ]?([!=]=)[ ]?([\\w ]*)", "$1__$2 $3 \"$4\"");
+        conditions = conditions.replaceAll("(\\w*)[ ]?([!=]=)[ ]?([\\w ]*)", FitsCard.JAVASCRIPT_KEYWORD_PREFIX + "$1 $2 \"$3\"");
+        conditions = conditions.replaceAll("(\\w*)-(\\w*)[ ]?([!=]=)[ ]?([\\w ]*)", FitsCard.JAVASCRIPT_KEYWORD_PREFIX + "$1__$2 $3 \"$4\"");
         final String finalConditions = conditions;
         Task<List<String>> task = new Task<List<String>>() {
             @Override
