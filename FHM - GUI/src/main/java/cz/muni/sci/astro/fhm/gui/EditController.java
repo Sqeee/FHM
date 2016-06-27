@@ -88,6 +88,10 @@ public class EditController {
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_TOOLS, MenuBarController.MENU_ITEM_TOOLS_CONCATENATION_MANAGER, false, e -> openConcatenationManagerDialog());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_SINGLE, true, null);
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_MULTIPLE, false, e -> switchMode());
+        buttonSave.getScene().getWindow().setOnCloseRequest(e -> {
+            e.consume();
+            quitWithConfirmation();
+        });
         files = filenames;
         cardsInFiles = new HashMap<>();
         cardsList = new HashMap<>();

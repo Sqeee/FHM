@@ -211,6 +211,10 @@ public class MultipleEditController {
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_EXIT, false, e -> quitWithConfirmation());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_SINGLE, false, e -> switchMode());
         GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_MODES, MenuBarController.MENU_ITEM_MODES_MULTIPLE, true, null);
+        buttonExecute.getScene().getWindow().setOnCloseRequest(e -> {
+            e.consume();
+            quitWithConfirmation();
+        });
         if (files.isEmpty()) {
             buttonSelectAll.setDisable(true);
             buttonExecute.setDisable(true);
@@ -919,9 +923,7 @@ public class MultipleEditController {
         }
         GUIHelpers.showAlert(AlertType.CONFIRMATION, "Confirm switching mode", "Switching modes", "Are you sure you want to switch modes? You lost all not executed operations.").ifPresent(response -> {
             if (response == ButtonType.OK) {
-                EditController editController = (EditController) mainViewController.setContent("fxml/Edit.fxml");
-                closeLogs();
-                editController.prepareWindow(listViewFiles.getItems(), mainViewController);
+                openEditFrom();
             }
         });
 
