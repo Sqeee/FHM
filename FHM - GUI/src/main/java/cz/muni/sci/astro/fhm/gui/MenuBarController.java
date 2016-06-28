@@ -80,11 +80,7 @@ public class MenuBarController {
             Stage help = new Stage();
             help.setTitle("Help");
             Scene scene = new Scene(anchorPane);
-            help.setScene(scene);//TODO
-            /*converter.setMinWidth(616);
-            converter.setMinHeight(178);
-            converter.setMaxWidth(616);
-            converter.setMaxHeight(178);*/
+            help.setScene(scene);
             GUIHelpers.setIcons(help);
             help.show();
         } catch (IOException ignored) {

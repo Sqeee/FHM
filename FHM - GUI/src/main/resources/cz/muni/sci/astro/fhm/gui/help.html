@@ -33,6 +33,7 @@
             <li><a href="help.html#concatenationmanager">Form - Concatenation manager</a></li>
             <li><a href="help.html#converter">Form - Converter</a></li>
             <li><a href="help.html#menubar">Menu bar</a></li>
+            <li><a href="help.html#progressinfo">Progress information window</a></li>
         </ul>
     </li>
     <li><a href="help.html#cli">CLI application</a></li>
@@ -91,7 +92,7 @@
 <h3 id="multiple">Form - Multiple edit [<a href="help.html#content">Back to content</a>]</h3>
 
 <p>You can specify operation which should be done on selected files in this form. There is list with files that can be
-    selected (manually or with buttons) on the left side . On the right side can be specified operation in the upper
+    selected (manually or with buttons) on the left side. On the right side can be specified operation in the upper
     section or can be checked log of executed operations or viewed queue of not executed operations.</p>
 
 <p>Every operation goes first to queue, where you can change order of operations, removes them or show affected files by
@@ -104,7 +105,8 @@
     About success (or not) of executed operations informs popup window.</p>
 
 <p>Operations can be prepared in tabs on upper right side. Operations have mandatory and optional arguments. If you do
-    not specified all mandatory arguments, then error alert popups. Optional arguments have checkbox. If it is checked,
+    not specified all mandatory arguments, then error alert popups. Also error alert popups if you create invalid
+    operation (for example for given keyword value is forbidden). Optional arguments have checkbox. If it is checked,
     then argument will be used for operation, if not, then argument will not be used. When you start typing in optional
     text field, then is automatically checked.</p>
 
@@ -231,6 +233,13 @@
 
 <p><b>About</b> menu item contains menu item Help (shows this Help section) and About (shows information about this
     application).</p>
+
+<h3 id="progressinfo">Progress information window [<a href="help.html#content">Back to content</a>]</h3>
+
+<p>Progress information window automatically shows up, when application needs to execute some long time action. This
+    windows informs you about progress of action, so you know, what application does. Window blocks any interaction with
+    application, it means you must wait to end of executing action. When long time action is completed, window is closed
+    automatically and you can continue with your work in this program.</p>
 
 <h2 id="cli">CLI application [<a href="help.html#content">Back to content</a>]</h2>
 
