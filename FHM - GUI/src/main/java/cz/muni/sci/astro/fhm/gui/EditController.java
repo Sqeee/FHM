@@ -1,5 +1,7 @@
 package cz.muni.sci.astro.fhm.gui;
 
+import cz.muni.sci.astro.fhm.core.TaskIsCancelled;
+import cz.muni.sci.astro.fhm.core.TaskUpdateTitle;
 import cz.muni.sci.astro.fhm.gui.controlls.ComboBoxFitsFileTableCell;
 import cz.muni.sci.astro.fhm.gui.controlls.TextFieldFitsCardTableCell;
 import cz.muni.sci.astro.fhm.gui.controlls.TextFieldKeywordTableCell;
@@ -12,6 +14,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,7 +33,7 @@ import javafx.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Controller for editing cards
@@ -100,41 +104,69 @@ public class EditController {
         tabsCardsToRemove = new ArrayList<>();
         tabsFiles = new ArrayList<>();
         fitsFiles = new ArrayList<>();
-        for (String filename : files) {
-            File file = new File(filename);
-            try {
-                FitsFile fitsFile = new FitsFile(file);
-                fitsFiles.add(fitsFile);
-                tabsFiles.add(newEditTab());
-            } catch (FitsException | IOException exc) {
-                errors.add("Error: cannot load file " + file.getName() + " with reason " + exc.getMessage());
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                for (String filename : files) {
+                    if (isCancelled()) {
+                        return null;
+                    }
+                    File file = new File(filename);
+                    updateTitle(file.getName());
+                    try {
+                        FitsFile fitsFile = new FitsFile(file);
+                        fitsFiles.add(fitsFile);
+                        tabsFiles.add(newEditTab());
+                    } catch (FitsException | IOException exc) {
+                        errors.add("Error: cannot load file " + file.getName() + " with reason " + exc.getMessage());
+                    }
+                }
+                TaskIsCancelled isCancelled = this::isCancelled;
+                TaskUpdateTitle updateTitle = this::updateTitle;
+                CountDownLatch cdl = new CountDownLatch(1);
+                prepareTabPane(isCancelled, updateTitle, cdl);
+                if (!errors.isEmpty()) {
+                    GUIHelpers.showAlert(AlertType.ERROR, "Error", "Error occurred", String.join("\n", errors));
+                }
+                cdl.await();
+                return null;
             }
-        }
+        };
+        Stage progressInfo = GUIHelpers.createProgressInfo("Opening single edit mode. Please wait.", task);
+        task.setOnSucceeded(event -> progressInfo.close());
+        EventHandler<WorkerStateEvent> failAction = event -> {
+            progressInfo.close();
+            GUIHelpers.showAlert(AlertType.ERROR, "Opening single edit mode", "Loading of single edit mode failed.", null);
+        };
+        task.setOnFailed(failAction);
+        task.setOnCancelled(failAction);
+        progressInfo.show();
+        Thread thread = new Thread(task);
+        thread.start();
         ComboBoxFitsFileTableCell.setFiles(files);
-        prepareTabPane();
-        if (tabPaneDatas.getTabs().isEmpty()) {
-            buttonAddNew.setDisable(true);
-            buttonSave.setDisable(true);
-            buttonSaveQuit.setDisable(true);
-            GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_SAVE, true, null);
-            GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_TOOLS, MenuBarController.MENU_ITEM_TOOLS_CONCATENATION_MANAGER, true, null);
-            ((RadioButton) toggleModeFiles).setDisable(true);
-            ((RadioButton) toggleModeKeywords).setDisable(true);
-        }
-        if (!errors.isEmpty()) {
-            GUIHelpers.showAlert(AlertType.ERROR, "Error", "Error occurred", String.join("\n", errors));
-        }
     }
 
     /**
      * Prepares tabs with TableView and fills them with data
+     *
+     * @param isCancelled method for checking if thread is cancelled
+     * @param updateTitle method for updating title with actual processing information
+     * @param cdl         count down for waiting JavaFX thread
      */
-    private void prepareTabPane() {
+    private void prepareTabPane(TaskIsCancelled isCancelled, TaskUpdateTitle updateTitle, CountDownLatch cdl) {
         Tab tab;
+        updateTitle.done("File tabs");
         for (int i = 0; i < tabsFiles.size(); i++) {
+            if (isCancelled.done()) {
+                return;
+            }
             prepareFileTab(tabsFiles.get(i), fitsFiles.get(i));
         }
+        updateTitle.done("Keyword tabs");
         for (String cardKeyword : cardsList.keySet()) {
+            if (isCancelled.done()) {
+                return;
+            }
             try {
                 tab = newEditTab();
             } catch (IOException ignored) // It should not occur - proper creating of new instance
@@ -145,7 +177,20 @@ public class EditController {
             prepareCardTab(tab, cardKeyword);
         }
         tabsCards.sort(TAB_ALPHABET_COMPARATOR);
-        tabPaneDatas.getTabs().addAll(tabsFiles);
+        updateTitle.done("GUI");
+        Platform.runLater(() -> {
+            tabPaneDatas.getTabs().addAll(tabsFiles);
+            if (tabPaneDatas.getTabs().isEmpty()) {
+                buttonAddNew.setDisable(true);
+                buttonSave.setDisable(true);
+                buttonSaveQuit.setDisable(true);
+                GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_FILE, MenuBarController.MENU_ITEM_FILE_SAVE, true, null);
+                GUIHelpers.modifyMenuItem(mainViewController, MenuBarController.MENU_TOOLS, MenuBarController.MENU_ITEM_TOOLS_CONCATENATION_MANAGER, true, null);
+                ((RadioButton) toggleModeFiles).setDisable(true);
+                ((RadioButton) toggleModeKeywords).setDisable(true);
+            }
+            cdl.countDown();
+        });
         tabPaneDatas.getSelectionModel().selectedItemProperty().addListener((ov, before, after) -> {
             if (after == null) {
                 setDisableDeleteButtons(true);
@@ -335,28 +380,78 @@ public class EditController {
 
     /**
      * Handles click on button Save - tries to save content, if there are some problems, shows them and return false
-     *
-     * @return true if save does not failed, otherwise false
      */
     @FXML
-    private boolean handleClickButtonSave() {
-        List<String> problems;
-        for (FitsFile file : fitsFiles) {
-            file.getHDU(0).getHeader().setCards(getTableViewInTab(getTabWithName(tabsFiles, file.getFilename())).getItems());
-            problems = file.getHDU(0).getHeader().checkSaveHeader();
-            if (!problems.isEmpty()) {
-                GUIHelpers.showAlert(AlertType.ERROR, "Saving cards", "Nothing was saved. Saving file " + file.getFilename() + " fails with error: ", String.join("\n", problems));
-                return false;
+    private void handleClickButtonSave() {
+        save(false);
+    }
+
+    /**
+     * Saves files
+     *
+     * @param quitAfter if after executing app should quit (in case of no problems during saving)
+     */
+    private void save(boolean quitAfter) {
+        Task<List<String>> task = new TaskOperationRunner<List<String>>() {
+            @Override
+            protected List<String> call() throws Exception {
+                List<String> problems;
+                List<String> result = new ArrayList<>();
+                int countFiles = 2 * fitsFiles.size();
+                int counter = 0;
+                updateProgress(counter, countFiles);
+                for (FitsFile file : fitsFiles) {
+                    if (isCancelled()) {
+                        return result;
+                    }
+                    updateTitle("Checking " + file.getFilename());
+                    file.getHDU(0).getHeader().setCards(getTableViewInTab(getTabWithName(tabsFiles, file.getFilename())).getItems());
+                    problems = file.getHDU(0).getHeader().checkSaveHeader();
+                    if (!problems.isEmpty()) {
+                        result.add("Nothing was saved. Saving file " + file.getFilename() + " fails with error: ");
+                        result.add(String.join("\n", problems));
+                        return result;
+                    }
+                    counter++;
+                    updateProgress(counter, countFiles);
+                }
+                problems = new ArrayList<>();
+                for (FitsFile file : fitsFiles) {
+                    updateTitle("Saving " + file.getFilename());
+                    if (!file.saveFile()) {
+                        problems.add(file.getFilename());
+                    }
+                    counter++;
+                    updateProgress(counter, countFiles);
+                }
+                if (!problems.isEmpty()) {
+                    result.add("Saving these files failed: ");
+                    result.add(String.join(", ", problems));
+                }
+                return result;
             }
-        }
-        problems = new ArrayList<>();
-        problems.addAll(fitsFiles.stream().filter(file -> !file.saveFile()).map(FitsFile::getFilename).collect(Collectors.toList()));
-        if (!problems.isEmpty()) {
-            GUIHelpers.showAlert(AlertType.ERROR, "Saving cards", "Saving these files failed: ", String.join(", ", problems));
-            return false;
-        }
-        GUIHelpers.showAlert(AlertType.INFORMATION, "Saving cards", "Files were saved successfully.", null);
-        return true;
+        };
+        Stage progressInfo = GUIHelpers.createProgressInfo("Saving cards. Please wait.", task);
+        task.setOnSucceeded(event -> {
+            progressInfo.close();
+            if (task.getValue().isEmpty()) {
+                GUIHelpers.showAlert(AlertType.INFORMATION, "Saving cards", "Files were saved successfully.", null);
+                if (quitAfter) {
+                    quit();
+                }
+            } else {
+                GUIHelpers.showAlert(AlertType.ERROR, "Saving cards", task.getValue().get(0), task.getValue().get(1));
+            }
+        });
+        EventHandler<WorkerStateEvent> failAction = event -> {
+            progressInfo.close();
+            GUIHelpers.showAlert(AlertType.ERROR, "Saving cards", "Problems with saving cards.", "Not all cards were saved. You can rerun saving.");
+        };
+        task.setOnFailed(failAction);
+        task.setOnCancelled(failAction);
+        progressInfo.show();
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     /**
@@ -539,9 +634,7 @@ public class EditController {
      */
     @FXML
     private void handleClickButtonQuitSave() {
-        if (handleClickButtonSave()) {
-            quit();
-        }
+        save(true);
     }
 
     /**
@@ -549,30 +642,54 @@ public class EditController {
      */
     @FXML
     private void handleClickToggleModeFiles() {
-        FitsCard selectedCard = getSelectedCardInTableView(getSelectedTableView());
-        Tab selectTab = null;
-        tabPaneDatas.getTabs().clear();
-        if (toggleGroupMode.getSelectedToggle() == toggleModeFiles) {
-            tabPaneDatas.getTabs().addAll(tabsFiles);
-            tabsCards.removeAll(tabsCardsToRemove);
-            tabsCardsToRemove.clear();
-            if (selectedCard != null) {
-                selectTab = getTabWithName(tabsFiles, cardsInFiles.get(selectedCard).getFilename());
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                updateTitle("Switching");
+                CountDownLatch cdl = new CountDownLatch(1);
+                System.out.println(Platform.isFxApplicationThread());
+                Platform.runLater(() -> {
+                    FitsCard selectedCard = getSelectedCardInTableView(getSelectedTableView());
+                    Tab selectTab = null;
+                    tabPaneDatas.getTabs().clear();
+                    if (toggleGroupMode.getSelectedToggle() == toggleModeFiles) {
+                        tabPaneDatas.getTabs().addAll(tabsFiles);
+                        tabsCards.removeAll(tabsCardsToRemove);
+                        tabsCardsToRemove.clear();
+                        if (selectedCard != null) {
+                            selectTab = getTabWithName(tabsFiles, cardsInFiles.get(selectedCard).getFilename());
+                        }
+                    } else {
+                        tabPaneDatas.getTabs().addAll(tabsCards);
+                        if (selectedCard != null) {
+                            selectTab = getTabWithName(tabsCards, selectedCard.getKeywordName());
+                        }
+                    }
+                    if (selectTab != null) {
+                        tabPaneDatas.getSelectionModel().select(selectTab);
+                        getTableViewInTab(selectTab).getSelectionModel().select(selectedCard);
+                        getTableViewInTab(selectTab).scrollTo(selectedCard);
+                    }
+                    for (Tab tab : tabPaneDatas.getTabs()) {
+                        refreshContentTableView(getTableViewInTab(tab).getColumns().get(0));
+                    }
+                    cdl.countDown();
+                });
+                cdl.await();
+                return null;
             }
-        } else {
-            tabPaneDatas.getTabs().addAll(tabsCards);
-            if (selectedCard != null) {
-                selectTab = getTabWithName(tabsCards, selectedCard.getKeywordName());
-            }
-        }
-        if (selectTab != null) {
-            tabPaneDatas.getSelectionModel().select(selectTab);
-            getTableViewInTab(selectTab).getSelectionModel().select(selectedCard);
-            getTableViewInTab(selectTab).scrollTo(selectedCard);
-        }
-        for (Tab tab : tabPaneDatas.getTabs()) {
-            refreshContentTableView(getTableViewInTab(tab).getColumns().get(0));
-        }
+        };
+        Stage progressInfo = GUIHelpers.createProgressInfo("Switching single edit mode. Please wait.", task);
+        task.setOnSucceeded(event -> progressInfo.close());
+        EventHandler<WorkerStateEvent> failAction = event -> {
+            progressInfo.close();
+            GUIHelpers.showAlert(AlertType.ERROR, "Switching single edit mode", "Switch of single edit mode failed.", null);
+        };
+        task.setOnFailed(failAction);
+        task.setOnCancelled(failAction);
+        progressInfo.show();
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     /**
