@@ -261,6 +261,7 @@ public class SelectFiles1Controller {
         Task<List<String>> task = new Task<List<String>>() {
             @Override
             protected List<String> call() throws Exception {
+                updateTitle(dir.toString());
                 List<String> files = new ArrayList<>();
                 try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, filter)) {
                     for (Path file : stream) {
