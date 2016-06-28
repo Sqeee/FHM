@@ -5,9 +5,10 @@ import javafx.concurrent.Task;
 /**
  * Abstract class for special needs of multiple operations runner
  *
+ * @param <T> type of task
  * @author Jan Hlava, 395986
  */
-public abstract class TaskOperationRunner extends Task<Boolean> {
+public abstract class TaskOperationRunner<T> extends Task<T> {
     /**
      * Updates progress of task
      *

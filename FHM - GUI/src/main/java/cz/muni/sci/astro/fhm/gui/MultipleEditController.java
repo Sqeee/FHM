@@ -740,7 +740,7 @@ public class MultipleEditController {
     private void executeOperations(boolean quitAfter) {
         printOK();
         printOK("Executing operations on files.");
-        Task<Boolean> task = new TaskOperationRunner() {
+        Task<Boolean> task = new TaskOperationRunner<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
                 allOK = true;
